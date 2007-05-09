@@ -1,0 +1,13 @@
+Run: python xokb.py
+
+play:
+	C - Do
+	D - Re
+	E - Mi
+	F - Fa
+	G - Sol
+	A - La
+	B - Si
+
+	Octave up - ]
+	Octave dw - [
