@@ -1,5 +1,6 @@
 #!/usr/bin/python
-import csnd,time
+import time
+#import csd
 
 class CsndPlayer(object):
 	"""Classe que representa a instancia do csound. Recebe os sinais para tocar ou parar de tocar notas."""
@@ -19,17 +20,20 @@ class CsndPlayer(object):
 	}
 	def __init__(self,csd):
 		"""csd: arquivo com as definicoes do(s) instrumento(s)"""
-		self.cs = csnd.Csound() # nova instancia do Csound
-		self.cs.Compile(csd) # Compila arquivo .csd 
-		self.th = csnd.CsoundPerformanceThread(self.cs) # Inicializa uma thread executar para a partitura
+		#self.cs = csnd.Csound() # nova instancia do Csound
+		#self.cs.Compile(csd) # Compila arquivo .csd 
+		#self.th = csnd.CsoundPerformanceThread(self.cs) # Inicializa uma thread executar para a partitura
+                print 'simula: inicia instancia csound'
 	def play(self,note,octave=4):
 		"""Toca 'note'. Pode receber a oitava, por padrao eh a 4"""
 		if note not in self.notas.keys():
 			return 1
-		self.cs.SetChannel('freq', self.notas[note]*octave) # seta o canal freq de comunicacao com a instancia do csnd
-		self.th.Play() 	# toca 
+		#self.cs.SetChannel('freq', self.notas[note]*octave) # seta o canal freq de comunicacao com a instancia do csnd
+		#self.th.Play() 	# toca 
+                print 'simula: play'
 		return 0
 	def pause(self):
-		return self.th.Pause() #pausa o som
+		#return self.th.Pause() #pausa o som
+                print 'simula: pause'
 		
 
