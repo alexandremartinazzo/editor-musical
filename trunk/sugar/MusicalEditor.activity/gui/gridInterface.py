@@ -35,8 +35,8 @@ class Grid(gtk.DrawingArea):
         self.octaveNotes = [None,[], [], [], [], [], [], [] ]
         self.show()
         self.soundCC = sound.SoundConnectionCenter()
-        self.notes = ("c", "csus", "d", "dsus", "e", "f", "fsus", 
-                 "g", "gsus", "a", "asus", "b")
+        self.notes = ("c", "c#", "d", "d#", "e", "f", "f#", 
+                 "g", "g#", "a", "a#", "b")
 
         self.add_events(gtk.gdk.BUTTON_PRESS_MASK |
                         gtk.gdk.BUTTON_RELEASE_MASK |
@@ -129,9 +129,6 @@ class Grid(gtk.DrawingArea):
             line += 60
             context.stroke()
             context.restore()
-            
-        if self.columns:
-            self.addColumns(self.quantityOfColumns)
         
         if self.paintNotes:
             self.drawNote()
@@ -140,6 +137,9 @@ class Grid(gtk.DrawingArea):
         if event == "columns":
             self.columns = True
             self.quantityOfColumns = properties
+            self.width, self.height = self.get_size_request()
+            self.width += self.quantityOfColumns*60
+            self.set_size_request(self.width, self.height)
         elif event == "note":
             self.paintNotes = True
             try:
@@ -155,34 +155,6 @@ class Grid(gtk.DrawingArea):
         rect = gtk.gdk.Rectangle(alloc.x, alloc.y, alloc.width, alloc.height)
         self.window.invalidate_rect(rect, True)
         self.window.process_updates(True)
-
-    def addColumns(self, quantity):
-        # Set the lines color and width      
-        self.context.set_source_rgb(0.6, 0.7, 0.6)
-        self.context.set_line_width(1)
-
-        # New atributes
-        column = self.width
-        self.width += quantity*58
-        line = 0
-
-        # Line border
-        while(line<self.height):
-            self.context.save()
-            self.context.line_to(column,line)
-            self.context.line_to(self.width, line)
-            line += 58
-            self.context.stroke()
-            self.context.restore()
-
-        # Column border
-        while column<self.width:
-            self.context.save()
-            self.context.move_to(column,0)
-            self.context.line_to(column, self.height)
-            column += 58
-            self.context.stroke()
-            self.context.restore()
         
     def drawNote(self):
         self.context.set_source_rgb(0, 0, 1)

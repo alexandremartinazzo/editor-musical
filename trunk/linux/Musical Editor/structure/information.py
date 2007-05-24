@@ -13,7 +13,7 @@ except ImportError:
 
 class Information:
     def __init__(self):
-        self.octavelist = [{},{},{},{},{},{},{}] # It contains iformation of each octave
+        self.octaveList = [None, {},{},{},{},{},{},{}] # It contains iformation of each octave
         self.instruments = {} # Dict of instruments added to composition with their position (1-10)
         self.activeInstrument = None # The active instrument
         self.metronome = 1000

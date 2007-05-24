@@ -257,6 +257,15 @@ class Interface:
         self.fixed.put(self.notesBox, 141, 553)
         self.notesBox.show()
 
+        # More Columns Button
+        self.columnsImage = gtk.Image()
+        self.columnsImage.set_from_file("pixmaps/column.png")
+        self.columnsImage.show()
+        self.columnsBox = gtk.EventBox()
+        self.columnsBox.add(self.columnsImage)
+        self.columnsBox.set_visible_window(False)
+        self.fixed.put(self.columnsBox, 1150, 100)
+        self.columnsBox.show()
 
         # Open Button
         self.openImage = gtk.image_new_from_stock(gtk.STOCK_OPEN, gtk.ICON_SIZE_BUTTON)

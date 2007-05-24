@@ -10,15 +10,38 @@
 
 #TODO: CRIAR LISTA SELF.PAINTNOTES COM NOTAS PITADAS EM CADA OITAVA E MANDA
 # ATUALIZA-LAS.
-#FAZER TESTE NO XO PARA VER SE FICA LENTO NA HORA DE PINTAR (ATUALIZAR TUDO)
 
 import gtk, gobject
 import sound
 
+class Notes:
+    def __init__(self, octaveList):
+        self.octaveList = octaveList
+
+    def create(self, column, line, octave, instrument):
+        duration = 1 # duration: the number of cells the note ist painted, helpful to differentiate 'dragging' from 'button press'
+        try: self.octaveList[octave][instrument] += [(line, column, duration)]
+        except: self.octaveList[octave][instrument] = [(line, column, duration)]
+       # print self.octaveList
+
+    def createDragging(self, column, line, octave, instrument):
+        aux = 0
+        for value in self.octaveList[octave][instrument]:
+            oline, ocolumn, oduration = value
+            print value
+            if oline == line and column == ocolumn + oduration:
+                self.octaveList[octave][instrument][aux] = (oline, ocolumn, oduration+1)
+            aux += 1
+        print self.octaveList[octave]
+        #print properties, 'drawing'
+        # TODO: procurar a linha em que estava tocando e aumentar a duracao: duration
+
+
 class Grid(gtk.DrawingArea):
-    def __init__(self):
+    def __init__(self, octaveList):
         #gtk.DrawingArea.__init__(self)
         super(Grid,self).__init__()
+        self.octaveList = Notes(octaveList)
         self.connect("expose_event", self.expose)
         self.connect("motion_notify_event", self.motionNotify)
         self.connect("button_press_event", self.buttonPress)
@@ -32,7 +55,7 @@ class Grid(gtk.DrawingArea):
         self.dragging = False
         self.lastCell = None
         self.currentOctave = 4
-        self.octaveNotes = [None,[], [], [], [], [], [], [] ]
+        self.instrument = None
         self.show()
         self.soundCC = sound.SoundConnectionCenter()
         self.notes = ("c", "c#", "d", "d#", "e", "f", "f#", 
@@ -53,6 +76,7 @@ class Grid(gtk.DrawingArea):
     def buttonPress(self, widget, event):
         self.dragging = True
         self.lastCell = ( int(event.x)/60 , int(event.y)/60 )
+        self.octaveList.create(1 + self.lastCell[0], 12 - self.lastCell[1], self.currentOctave, self.instrument)
         
         # Create a sound event
         soundEvent = sound.SoundEvent(1, (self.notes[self.lastCell[1]],self.currentOctave))
@@ -70,6 +94,7 @@ class Grid(gtk.DrawingArea):
             if int(event.x)/60 != self.lastCell[0] and int(event.y)/60 == self.lastCell[1]:
                 # Cells at the same line
                 self.lastCell = ( int(event.x)/60 , int(event.y)/60 )
+                self.octaveList.createDragging(1 + self.lastCell[0], 12 - self.lastCell[1], self.currentOctave, self.instrument)
                 newEndx = self.lastCell[0]*60 + 45
                 counter = 0
                 for i in self.noteToPaint:
@@ -88,13 +113,14 @@ class Grid(gtk.DrawingArea):
                 
                 # Cells at the same column
                 self.lastCell = ( int(event.x)/60 , int(event.y)/60 )
+                self.octaveList.create(1 + self.lastCell[0], 12 - self.lastCell[1], self.currentOctave, self.instrument)
 
                 # Create a sound event for playing
                 soundEvent = sound.SoundEvent(1, (self.notes[self.lastCell[1]],self.currentOctave))
                 self.soundCC.send(soundEvent)
                 
                 x = self.lastCell[0]*60 + 15
-                y = self.lastCell[1]*60 + 20 # 20 is defined by instrument chosen number
+                y = self.lastCell[1]*60 + 20 # 20 is defined by instrument number chosen
                 begin = (x,y)
                 end = (x+30,y)
                 self.setAction("note", (begin,end))
@@ -129,9 +155,6 @@ class Grid(gtk.DrawingArea):
             line += 60
             context.stroke()
             context.restore()
-            
-        if self.columns:
-            self.addColumns(self.quantityOfColumns)
         
         if self.paintNotes:
             self.drawNote()
@@ -140,6 +163,9 @@ class Grid(gtk.DrawingArea):
         if event == "columns":
             self.columns = True
             self.quantityOfColumns = properties
+            self.width, self.height = self.get_size_request()
+            self.width += self.quantityOfColumns*60
+            self.set_size_request(self.width, self.height)
         elif event == "note":
             self.paintNotes = True
             try:
@@ -155,42 +181,27 @@ class Grid(gtk.DrawingArea):
         rect = gtk.gdk.Rectangle(alloc.x, alloc.y, alloc.width, alloc.height)
         self.window.invalidate_rect(rect, True)
         self.window.process_updates(True)
-
-    def addColumns(self, quantity):
-        # Set the lines color and width      
-        self.context.set_source_rgb(0.6, 0.7, 0.6)
-        self.context.set_line_width(1)
-
-        # New atributes
-        column = self.width
-        self.width += quantity*58
-        line = 0
-
-        # Line border
-        while(line<self.height):
-            self.context.save()
-            self.context.line_to(column,line)
-            self.context.line_to(self.width, line)
-            line += 58
-            self.context.stroke()
-            self.context.restore()
-
-        # Column border
-        while column<self.width:
-            self.context.save()
-            self.context.move_to(column,0)
-            self.context.line_to(column, self.height)
-            column += 58
-            self.context.stroke()
-            self.context.restore()
         
     def drawNote(self):
         self.context.set_source_rgb(0, 0, 1)
         self.context.set_line_width(5)
         for note in self.noteToPaint:
             self.context.save()
-            self.context.move_to(note[0][0],note[0][1])
-            self.context.line_to(note[1][0],note[1][1])
+            begin = note[0][0]
+            end = note[1][0]
+            if end - begin > 30:
+                self.context.move_to(note[0][0],note[0][1])
+                self.context.line_to(note[0][0]+30,note[0][1])
+                self.context.stroke()
+                self.context.restore()
+                self.context.save()
+                self.context.set_line_width(2.5)
+                self.context.move_to(note[0][0]+30,note[0][1])
+                self.context.line_to(note[1][0],note[1][1])
+            else:
+                self.context.set_line_width(5)
+                self.context.move_to(note[0][0],note[0][1])
+                self.context.line_to(note[1][0],note[1][1])
             self.context.stroke()
             self.context.restore()
 

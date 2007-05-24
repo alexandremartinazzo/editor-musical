@@ -18,8 +18,8 @@ import gtk
 class MusicalEditor:
     def __init__(self):
         self.information = information.Information()
-        self.gui = gui.Interface()
-        self.grid = base.Base(self.gui, self.information)
+        self.gui = gui.Interface(self.information.octaveList)
+        self.base = base.Base(self.gui, self.information)
         self.gui.mainwindow.show_all()
 
 # Initialize Musical Editor

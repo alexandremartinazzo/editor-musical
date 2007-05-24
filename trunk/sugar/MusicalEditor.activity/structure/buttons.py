@@ -49,6 +49,9 @@ class Buttons:
         self.showNotes = True
         grid.gui.notesBox.connect("button_press_event", self.exhibitnote)
 
+        # Connecting AddMoreColumns Button
+        grid.gui.columnsBox.connect("button_press_event", self.addColumns)
+
     def open(self, widget, context):
         open = self.grid.information.open(self.grid.gui.mainwindow)
         if open != None:
@@ -63,16 +66,13 @@ class Buttons:
     def togglegrid(self, octave, number):
         """This function is resposible for not allowing the grid to have more than
         one octave activated"""
-        print 1
         old = self.grid.currentOctave
         if octave.get_active():
-            print 2
             for i in range(1,8):
                 if i != number:
                     self.grid.octaves[i-1].set_active(False)
             self.grid.currentOctave = number                
         else:
-            print 3
             #This works if the user want to toggle off an octave
             is_active = 0
             for i in range(1,8):
@@ -129,3 +129,7 @@ class Buttons:
             # Show them
             self.grid.gui.viewport2.set_child_visible(True)
             self.showNotes = True
+
+    def addColumns(self, widget, context):
+        numberOfColumnsToAdd = 100
+        self.grid.gui.grid.setAction("columns", numberOfColumnsToAdd)

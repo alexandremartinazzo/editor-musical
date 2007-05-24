@@ -8,107 +8,88 @@
 import gtk
 
 class Buttons:
-    def __init__(self, grid):
-        self.grid = grid
+    def __init__(self, base):
+        self.base = base
         self.copiedCells = {}
         self.method = None
 
         # Connecting Open, Save, Save As Buttons
-        #grid.gui.openBox.connect("button_press_event", self.open)
-        #grid.gui.saveBox.connect("button_press_event", self.save)
-        #grid.gui.saveAsBox.connect("button_press_event", self.saveAs)
+        #base.gui.openBox.connect("button_press_event", self.open)
+        #base.gui.saveBox.connect("button_press_event", self.save)
+        #base.gui.saveAsBox.connect("button_press_event", self.saveAs)
 
         # Initialize Octaves' Togglebuttons
-        grid.gui.octave1.connect("toggled", self.togglegrid, 1)
-        grid.gui.octave2.connect("toggled", self.togglegrid, 2)
-        grid.gui.octave3.connect("toggled", self.togglegrid, 3)
-        grid.gui.octave4.connect("toggled", self.togglegrid, 4)
-        grid.gui.octave5.connect("toggled", self.togglegrid, 5)
-        grid.gui.octave6.connect("toggled", self.togglegrid, 6)
-        grid.gui.octave7.connect("toggled", self.togglegrid, 7)
+        base.gui.octave1.connect("toggled", self.togglegrid, 1)
+        base.gui.octave2.connect("toggled", self.togglegrid, 2)
+        base.gui.octave3.connect("toggled", self.togglegrid, 3)
+        base.gui.octave4.connect("toggled", self.togglegrid, 4)
+        base.gui.octave5.connect("toggled", self.togglegrid, 5)
+        base.gui.octave6.connect("toggled", self.togglegrid, 6)
+        base.gui.octave7.connect("toggled", self.togglegrid, 7)
         
         # Connecting Compose, Clear and Select Buttons
-        grid.gui.composeBox.connect("button_press_event", self.callbackComposePress)
-        grid.gui.composeBox.connect("button_release_event", self.callbackComposeRelease)
-        grid.gui.clearBox.connect("button_press_event", self.callbackClearPress)
-        grid.gui.clearBox.connect("button_release_event", self.callbackClearRelease)
-        grid.gui.selectBox.connect("button_press_event", self.callbackSelectPress)
-        grid.gui.selectBox.connect("button_release_event", self.callbackSelectRelease)
+        base.gui.composeBox.connect("button_press_event", self.callbackComposePress)
+        base.gui.composeBox.connect("button_release_event", self.callbackComposeRelease)
+        base.gui.clearBox.connect("button_press_event", self.callbackClearPress)
+        base.gui.clearBox.connect("button_release_event", self.callbackClearRelease)
+        base.gui.selectBox.connect("button_press_event", self.callbackSelectPress)
+        base.gui.selectBox.connect("button_release_event", self.callbackSelectRelease)
 
         # Connecting Copy, Cut and Paste Buttons:
-        #grid.gui.copyBox.connect("button_press_event", self.copy)
-        #grid.gui.cutBox.connect("button_press_event", self.cut)
-        #grid.gui.pasteBox.connect("button_press_event", self.paste)
+        #base.gui.copyBox.connect("button_press_event", self.copy)
+        #base.gui.cutBox.connect("button_press_event", self.cut)
+        #base.gui.pasteBox.connect("button_press_event", self.paste)
         
         # Connecting Play/Stop Buttons
-        #grid.gui.playBox.connect("button_press_event", self.play)
-        #grid.gui.stopBox.connect("button_press_event", self.stop)
+        #base.gui.playBox.connect("button_press_event", self.play)
+        #base.gui.stopBox.connect("button_press_event", self.stop)
 
         # Connecting Show/Hide ToggleButton
         self.showNotes = True
-        grid.gui.notesBox.connect("button_press_event", self.exhibitnote)
+        base.gui.notesBox.connect("button_press_event", self.exhibitnote)
+
+        # Connecting AddMoreColumns Button
+        base.gui.columnsBox.connect("button_press_event", self.addColumns)
 
     def open(self, widget, context):
-        open = self.grid.information.open(self.grid.gui.mainwindow)
+        open = self.base.information.open(self.base.gui.mainwindow)
         if open != None:
-            self.grid.instrument.instruments = open[1]
-            self.grid.information.activeInstrument = None
-            self.grid.instrumentMenu.changeMenu()
-            octave = self.grid.information.octavelist[self.grid.current_octave - 1]
+            self.base.instrument.instruments = open[1]
+            self.base.information.activeInstrument = None
+            self.base.instrumentMenu.changeMenu()
+            octave = self.base.information.octavelist[self.base.current_octave - 1]
             
             # TODO: CONSTRUIR NA GRADE A COMPOSICAO QUE FOI ABERTA
-            #self.grid.rebuild_grid(octave, octave, 0, True)
+            #self.base.rebuild_grid(octave, octave, 0, True)
     
     def togglegrid(self, octave, number):
         """This function is resposible for not allowing the grid to have more than
         one octave activated"""
-        print 1
-        old = self.grid.currentOctave
+        old = self.base.gui.grid.currentOctave
         if octave.get_active():
-            print 2
             for i in range(1,8):
                 if i != number:
-                    self.grid.octaves[i-1].set_active(False)
-            self.grid.currentOctave = number                
+                    self.base.octaves[i-1].set_active(False)
+            self.base.gui.grid.currentOctave = number                
         else:
-            print 3
             #This works if the user want to toggle off an octave
             is_active = 0
             for i in range(1,8):
-                if self.grid.octaves[i-1].get_active() == True:
+                if self.base.octaves[i-1].get_active() == True:
                     is_active = number
             if is_active == 0:
                 octave.set_active(True)
 
     def deselectAllButtons(self):
-        self.grid.gui.composeImage.set_from_file("pixmaps/compose1.png")
-        self.grid.gui.clearImage.set_from_file("pixmaps/clear1.png")
-        self.grid.gui.selectImage.set_from_file("pixmaps/select1.png")
+        self.base.gui.composeImage.set_from_file("pixmaps/compose1.png")
+        self.base.gui.clearImage.set_from_file("pixmaps/clear1.png")
+        self.base.gui.selectImage.set_from_file("pixmaps/select1.png")
 
     def callbackComposePress(self, widget, context):
         # Highlight the box
-
-        
-        
-        # Aumentar numero de colunas na grade
-        self.grid.gui.grid.setAction("columns", 2)
-        width, height = self.grid.gui.gridBox.get_size_request()
-
-        width += 2*58
-        self.grid.gui.gridBox.set_size_request(width,height)
-
-
-        # Pintar nota
-        #begin = (0,0)
-        #end = (100,100)
-        #self.grid.gui.grid.drawNote(begin, end)
-        
-        #begin = (50,50)
-        #self.grid.gui.grid.drawNote(begin, end)
-        
         self.deselectAllButtons()
-        self.grid.gui.composeImage.set_from_file("pixmaps/compose2.png")
-        self.grid.method = "compose"
+        self.base.gui.composeImage.set_from_file("pixmaps/compose2.png")
+        self.base.method = "compose"
         
     def callbackComposeRelease(self, widget, context):
         # TODO: Mudar o Mouse no Sugar
@@ -118,30 +99,30 @@ class Buttons:
         # Pintar nota
         begin = (0,0)
         end = (100,100)
-        self.grid.gui.grid.setAction("note", (begin, end))
+        self.base.gui.grid.setAction("note", (begin, end))
         
         # Highlight the box
         self.deselectAllButtons()
-        self.grid.gui.clearImage.set_from_file("pixmaps/clear2.png")
-        self.grid.method = "clear"
+        self.base.gui.clearImage.set_from_file("pixmaps/clear2.png")
+        self.base.method = "clear"
         
     def callbackClearRelease(self, widget, context):
         # Pintar nota
         begin = (0,0)
         end = (500,10)
-        self.grid.gui.grid.setAction("note", (begin, end))
+        self.base.gui.grid.setAction("note", (begin, end))
         
         # TODO: MOUSE
         #pix = gtk.gdk.pixbuf_new_from_file("pixmaps/clearCursor.png")
         #cursor = gtk.gdk.Cursor(gtk.gdk.display_get_default(), pix, 0, 0)
-        #self.grid.gui.fixed.gui.set_cursor(cursor)
+        #self.base.gui.fixed.gui.set_cursor(cursor)
         pass
     
     def callbackSelectPress(self, widget, context):
         # Highlight the box
         self.deselectAllButtons()
-        self.grid.gui.selectImage.set_from_file("pixmaps/select2.png")
-        self.grid.method = "select"
+        self.base.gui.selectImage.set_from_file("pixmaps/select2.png")
+        self.base.method = "select"
         
     def callbackSelectRelease(self, widget, context):
         # TODO: MOUSE
@@ -151,9 +132,13 @@ class Buttons:
         """This function shows or hide notes (Do, Do#, Re, ... , Si)"""
         if self.showNotes == True:
             # Hide them
-            self.grid.gui.viewport2.set_child_visible(False)
+            self.base.gui.viewport2.set_child_visible(False)
             self.showNotes = False
         else:
             # Show them
-            self.grid.gui.viewport2.set_child_visible(True)
+            self.base.gui.viewport2.set_child_visible(True)
             self.showNotes = True
+
+    def addColumns(self, widget, context):
+        numberOfColumnsToAdd = 100
+        self.base.gui.grid.setAction("columns", numberOfColumnsToAdd)

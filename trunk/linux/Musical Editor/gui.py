@@ -16,7 +16,7 @@ print os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 class Interface:
     """This class builds the main window and its components"""
-    def __init__(self):
+    def __init__(self, octaveList):
         # Some useful colors
         self.bgcolor = gtk.gdk.Color(64507,58596,32125)
         self.color1 = gtk.gdk.Color(40863, 47545, 56026)
@@ -27,7 +27,7 @@ class Interface:
         self.createWindow()
         self.createFixed()
         self.createBackground() # the color is set to yellow
-        self.createGrid()
+        self.createGrid(octaveList)
         self.createButtons()
         self.mainwindow.show_all()
 
@@ -65,9 +65,9 @@ class Interface:
         self.fixed.put(self.background, 0, 0)
         self.background.show()
 
-    def createGrid(self):
+    def createGrid(self, octaveList):
         # Create the Grid Interface
-        self.grid = Grid()
+        self.grid = Grid(octaveList)
 
         # Create a ScrolledWindow
         self.scrolledWindow = gtk.ScrolledWindow(None,None)
@@ -277,6 +277,15 @@ class Interface:
         self.fixed.put(self.notesBox, 141, 553)
         self.notesBox.show()
 
+        # More Columns Button
+        self.columnsImage = gtk.Image()
+        self.columnsImage.set_from_file("pixmaps/column.png")
+        self.columnsImage.show()
+        self.columnsBox = gtk.EventBox()
+        self.columnsBox.add(self.columnsImage)
+        self.columnsBox.set_visible_window(False)
+        self.fixed.put(self.columnsBox, 1150, 100)
+        self.columnsBox.show()        
 
         # Open Button
         self.openImage = gtk.image_new_from_stock(gtk.STOCK_OPEN, gtk.ICON_SIZE_BUTTON)

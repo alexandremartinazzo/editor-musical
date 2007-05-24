@@ -17,7 +17,6 @@ class Base:
         self.information = information
         self.octaves = [gui.octave1, gui.octave2, gui.octave3, gui.octave4, gui.octave5, gui.octave6, gui.octave7] # It's the list of octaves buttons
         self.method = None # can be "compose", "clear" or "select"
-        self.currentOctave = 4 # It's the current octave
         self.gui.octave4.set_active(True)
         self.buttons = buttons.Buttons(self)
         self.instrumentMenu = instruments.Menu(self)
