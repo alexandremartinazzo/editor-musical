@@ -70,7 +70,8 @@ class Buttons:
             for i in range(1,8):
                 if i != number:
                     self.base.octaves[i-1].set_active(False)
-            self.base.gui.grid.currentOctave = number                
+            self.base.gui.grid.currentOctave = number
+            self.base.gui.grid.changeOctave()
         else:
             #This works if the user want to toggle off an octave
             is_active = 0
@@ -95,23 +96,13 @@ class Buttons:
         # TODO: Mudar o Mouse no Sugar
         pass
 
-    def callbackClearPress(self, widget, context):
-        # Pintar nota
-        begin = (0,0)
-        end = (100,100)
-        self.base.gui.grid.setAction("note", (begin, end))
-        
+    def callbackClearPress(self, widget, context):        
         # Highlight the box
         self.deselectAllButtons()
         self.base.gui.clearImage.set_from_file("pixmaps/clear2.png")
         self.base.method = "clear"
         
     def callbackClearRelease(self, widget, context):
-        # Pintar nota
-        begin = (0,0)
-        end = (500,10)
-        self.base.gui.grid.setAction("note", (begin, end))
-        
         # TODO: MOUSE
         #pix = gtk.gdk.pixbuf_new_from_file("pixmaps/clearCursor.png")
         #cursor = gtk.gdk.Cursor(gtk.gdk.display_get_default(), pix, 0, 0)
@@ -133,10 +124,12 @@ class Buttons:
         if self.showNotes == True:
             # Hide them
             self.base.gui.viewport2.set_child_visible(False)
+            self.base.gui.scrolledWindow.set_size_request(780, 738)
             self.showNotes = False
         else:
             # Show them
             self.base.gui.viewport2.set_child_visible(True)
+            self.base.gui.scrolledWindow.set_size_request(720, 738)
             self.showNotes = True
 
     def addColumns(self, widget, context):

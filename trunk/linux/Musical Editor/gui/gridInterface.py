@@ -19,25 +19,20 @@ class Notes:
         self.octaveList = octaveList
 
     def create(self, column, line, octave, instrument):
-        duration = 1 # duration: the number of cells the note ist painted, helpful to differentiate 'dragging' from 'button press'
+        duration = 1 # duration: the number of cells the note is painted, helpful to differentiate 'dragging' from 'button press'
         try: self.octaveList[octave][instrument] += [(line, column, duration)]
         except: self.octaveList[octave][instrument] = [(line, column, duration)]
-       # print self.octaveList
 
     def createDragging(self, column, line, octave, instrument):
-        aux = 0
-        for value in self.octaveList[octave][instrument]:
-            oline, ocolumn, oduration = value
-            print value
-            if oline == line and column == ocolumn + oduration:
-                self.octaveList[octave][instrument][aux] = (oline, ocolumn, oduration+1)
-            aux += 1
-        print self.octaveList[octave]
-        #print properties, 'drawing'
-        # TODO: procurar a linha em que estava tocando e aumentar a duracao: duration
-
+        aux = len(self.octaveList[octave][instrument]) - 1
+        oline, ocolumn, oduration = self.octaveList[octave][instrument][aux]
+        self.octaveList[octave][instrument][aux] = (oline, ocolumn, oduration+1)
 
 class Grid(gtk.DrawingArea):
+    # Colors given by (Red, Green, Blue)
+    STRING = (1,0,0) # Red
+    PERCUSSION = (0,1,0) # Green
+    INSTRUMENT_COLOR = {None:(0.2,0.2,1), 'GUITAR':STRING, 'BASS':STRING, 'DRUMNS':PERCUSSION} # Instrument colors
     def __init__(self, octaveList):
         #gtk.DrawingArea.__init__(self)
         super(Grid,self).__init__()
@@ -72,7 +67,23 @@ class Grid(gtk.DrawingArea):
         self.paintContext.save()
         self.draw(self.context)
         return False
-    
+
+    def changeOctave(self):
+        self.noteToPaint = {} # key:value >> instrument:[notes], note = (line,column,duration)
+        octaveDict = self.octaveList.octaveList[self.currentOctave]
+        for instrument in octaveDict:
+            self.noteToPaint[instrument] = []
+            for properties in octaveDict[instrument]:
+                line, column, duration = properties
+                line = 12 - line
+                column -= 1
+                x = column*60 + 15 # Horizonatal center
+                y = line*60 + 20 # 20 is defined by instrument chosen number
+                begin = (x,y)
+                end = (x+30 + (duration-1)*60, y)
+                self.noteToPaint[instrument] += [(begin,end)]
+        self.setAction()
+
     def buttonPress(self, widget, event):
         self.dragging = True
         self.lastCell = ( int(event.x)/60 , int(event.y)/60 )
@@ -82,7 +93,7 @@ class Grid(gtk.DrawingArea):
         soundEvent = sound.SoundEvent(1, (self.notes[self.lastCell[1]],self.currentOctave))
         self.soundCC.send(soundEvent)
         
-        x = self.lastCell[0]*60 + 15
+        x = self.lastCell[0]*60 + 15 # Horizonatal center
         y = self.lastCell[1]*60 + 20 # 20 is defined by instrument chosen number
         begin = (x,y)
         end = (x+30,y)
@@ -96,14 +107,12 @@ class Grid(gtk.DrawingArea):
                 self.lastCell = ( int(event.x)/60 , int(event.y)/60 )
                 self.octaveList.createDragging(1 + self.lastCell[0], 12 - self.lastCell[1], self.currentOctave, self.instrument)
                 newEndx = self.lastCell[0]*60 + 45
-                counter = 0
-                for i in self.noteToPaint:
-                    counter += 1
-                oldEndx = self.noteToPaint[counter-1][1][0]
+                counter = len(self.noteToPaint[self.instrument])
+                oldEndx = self.noteToPaint[self.instrument][counter-1][1][0]
                 if newEndx > oldEndx:
-                    begin, end = self.noteToPaint[counter-1]
+                    begin, end = self.noteToPaint[self.instrument][counter-1]
                     end = (newEndx, end[1])
-                    self.noteToPaint[counter-1] = (begin,end)
+                    self.noteToPaint[self.instrument][counter-1] = (begin,end)
                     self.setAction()
 
             elif int(event.y-1)/60 != self.lastCell[1]:
@@ -127,7 +136,7 @@ class Grid(gtk.DrawingArea):
             
     def buttonRelease(self, widget, event):
         self.dragging = False
-        # Create a sound event for stoping
+        # Create an event to pause the sound
         soundEvent = sound.SoundEvent(2)
         self.soundCC.send(soundEvent)
         
@@ -155,7 +164,6 @@ class Grid(gtk.DrawingArea):
             line += 60
             context.stroke()
             context.restore()
-        
         if self.paintNotes:
             self.drawNote()
 
@@ -169,41 +177,39 @@ class Grid(gtk.DrawingArea):
         elif event == "note":
             self.paintNotes = True
             try:
-                knownNote = False
-                for note in self.noteToPaint:
-                    if note == properties:
-                        knownNote = True
-                if not knownNote: self.noteToPaint += [properties]
+                knownNote = properties in self.noteToPaint[self.instrument] # Verify if the note is already painted
+                if not knownNote: self.noteToPaint[self.instrument] += [properties]
             except:
-                self.noteToPaint = [properties]
-        
+                self.noteToPaint = {self.instrument:[properties]}
         alloc = self.get_allocation()
         rect = gtk.gdk.Rectangle(alloc.x, alloc.y, alloc.width, alloc.height)
         self.window.invalidate_rect(rect, True)
         self.window.process_updates(True)
         
     def drawNote(self):
-        self.context.set_source_rgb(0, 0, 1)
         self.context.set_line_width(5)
-        for note in self.noteToPaint:
-            self.context.save()
-            begin = note[0][0]
-            end = note[1][0]
-            if end - begin > 30:
-                self.context.move_to(note[0][0],note[0][1])
-                self.context.line_to(note[0][0]+30,note[0][1])
+        for instrument in self.noteToPaint:
+            r, g, b = Grid.INSTRUMENT_COLOR[instrument]
+            self.context.set_source_rgb(r, g, b)
+            for note in self.noteToPaint[instrument]:
+                self.context.save()
+                begin = note[0][0]
+                end = note[1][0]
+                if end - begin > 30:
+                    self.context.move_to(note[0][0],note[0][1])
+                    self.context.line_to(note[0][0]+30,note[0][1])
+                    self.context.stroke()
+                    self.context.restore()
+                    self.context.save()
+                    self.context.set_line_width(2.5)
+                    self.context.move_to(note[0][0]+30,note[0][1])
+                    self.context.line_to(note[1][0],note[1][1])
+                else:
+                    self.context.set_line_width(5)
+                    self.context.move_to(note[0][0],note[0][1])
+                    self.context.line_to(note[1][0],note[1][1])
                 self.context.stroke()
                 self.context.restore()
-                self.context.save()
-                self.context.set_line_width(2.5)
-                self.context.move_to(note[0][0]+30,note[0][1])
-                self.context.line_to(note[1][0],note[1][1])
-            else:
-                self.context.set_line_width(5)
-                self.context.move_to(note[0][0],note[0][1])
-                self.context.line_to(note[1][0],note[1][1])
-            self.context.stroke()
-            self.context.restore()
 
 # Test the grid interface
 if __name__ == "__main__":
