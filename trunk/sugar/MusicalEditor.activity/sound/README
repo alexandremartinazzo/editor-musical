@@ -1,13 +1,3 @@
-Run: python xokb.py
+How to use the csound.py module.
 
-play:
-	C - Do
-	D - Re
-	E - Mi
-	F - Fa
-	G - Sol
-	A - La
-	B - Si
-
-	Octave up - ]
-	Octave dw - [
+Please, look at XOKeyBoard/xokb.py to have an idea of how to use the module.
