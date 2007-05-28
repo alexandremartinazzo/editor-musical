@@ -15,7 +15,7 @@ class Information:
     def __init__(self):
         self.octaveList = [None, {},{},{},{},{},{},{}] # It contains iformation of each octave
         self.instruments = {} # Dict of instruments added to composition with their position (1-10)
-        self.activeInstrument = None # The active instrument
+        self.activeInstrument = None # index of the active instrument
         self.metronome = 1000
 
     def open(self, parentWindow):

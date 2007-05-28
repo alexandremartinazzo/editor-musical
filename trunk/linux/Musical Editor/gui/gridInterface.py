@@ -32,7 +32,13 @@ class Grid(gtk.DrawingArea):
     # Colors given by (Red, Green, Blue)
     STRING = (1,0,0) # Red
     PERCUSSION = (0,1,0) # Green
-    INSTRUMENT_COLOR = {None:(0.2,0.2,1), 'GUITAR':STRING, 'BASS':STRING, 'DRUMNS':PERCUSSION} # Instrument colors
+    BLOW = (1,0,1) # Purple
+    OTHERS = (1,1,0) # Don't know yet
+    INSTRUMENT_COLOR = {None:(0.2,0.2,1), 'eletricGuitar':STRING, 'Guit1':STRING, 'guiter2':STRING,
+                        'lyre':STRING, 'VIOLIN1':STRING, 'MANDOLIN':STRING, 'DRUMS':PERCUSSION, 'Drum':PERCUSSION,
+                        'ORGAN':PERCUSSION, 'grandPiano':PERCUSSION, 'flute1':BLOW, 'Tuba1':BLOW,
+                        'CORNET':BLOW, 'Recorder1':BLOW, 'TROMBONE':BLOW, 'Trumpet4':BLOW, 'TRUMPET':BLOW,
+                        'TUBA':BLOW, 'Pupsing':OTHERS} # Instrument colors
     def __init__(self, octaveList):
         #gtk.DrawingArea.__init__(self)
         super(Grid,self).__init__()

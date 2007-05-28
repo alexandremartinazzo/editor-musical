@@ -315,19 +315,31 @@ class Interface:
         self.saveAsBox.show()
 
     def selectInstrument(self):
+        dialog = InstrumentSelection(self.mainwindow)
+        instrument = dialog.run()
+        dialog.destroy()
+        return instrument
+
+class InstrumentSelection:
+    def destroy(self):
+        self.dialog.destroy()
+
+    def __init__(self, parentWindow):
+        self.__selected = None # selected instrument
         # Create a gtk.Dialog
-        dialog = gtk.Dialog(None, self.mainwindow, gtk.DIALOG_DESTROY_WITH_PARENT,
+        self.dialog = gtk.Dialog(None, parentWindow, gtk.DIALOG_DESTROY_WITH_PARENT,
                             (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT, gtk.STOCK_CANCEL,
                             gtk.RESPONSE_REJECT))
-        dialog.set_size_request(600,600)
-        dialog.set_resizable(False)
-        dialog.set_decorated(False)
-        dialog.modify_bg(gtk.STATE_NORMAL, self.bgcolor)
-        dialog.show()
+        self.dialog.set_size_request(600,600)
+        self.dialog.set_resizable(False)
+        self.dialog.set_decorated(False)
+        self.dialog.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color(64507,58596,32125))
+        self.dialog.connect('response', self.response_event)
+        self.dialog.show()
 
         # Create a table to display instruments and put it in gtk.Dialog
         table = gtk.Table(5,5,True)
-        dialog.vbox.add(table)
+        self.dialog.vbox.add(table)
         table.show()
 
         # Add instument's buttons to the table
@@ -340,6 +352,7 @@ class Interface:
             image.set_from_file('pixmaps/instruments/' + name + '.png')
             button = gtk.Button()
             button.add(image)
+            button.connect('button_press_event', self.changeInstrument, name)
             image.show()
             button.show()
             if i==5:
@@ -350,6 +363,19 @@ class Interface:
             i += 1
             j += 1
 
+    def changeInstrument(self, widget, event, name):
+        self.__selected = name
+
+    def response_event(self, widget, response_id):
+        if response_id == gtk.RESPONSE_ACCEPT:
+            widget.destroy()
+        elif response_id == gtk.RESPONSE_REJECT:
+            self.__selected = None
+            widget.destroy()
+
+    def run(self):
+        self.dialog.run()
+        return self.__selected
 
 # Interface Test
 if __name__ == "__main__":

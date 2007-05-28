@@ -20,4 +20,3 @@ class Base:
         self.gui.octave4.set_active(True)
         self.buttons = buttons.Buttons(self)
         self.instrumentMenu = instruments.Menu(self)
-        self.instrument = instruments.Instrument(self)
