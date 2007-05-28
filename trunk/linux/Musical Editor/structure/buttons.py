@@ -26,7 +26,7 @@ class Buttons:
         base.gui.octave5.connect("toggled", self.togglegrid, 5)
         base.gui.octave6.connect("toggled", self.togglegrid, 6)
         base.gui.octave7.connect("toggled", self.togglegrid, 7)
-        
+
         # Connecting Compose, Clear and Select Buttons
         base.gui.composeBox.connect("button_press_event", self.callbackComposePress)
         base.gui.composeBox.connect("button_release_event", self.callbackComposeRelease)
@@ -133,5 +133,5 @@ class Buttons:
             self.showNotes = True
 
     def addColumns(self, widget, context):
-        numberOfColumnsToAdd = 100
+        numberOfColumnsToAdd = 50
         self.base.gui.grid.setAction("columns", numberOfColumnsToAdd)

@@ -314,6 +314,43 @@ class Interface:
         self.fixed.put(self.saveAsBox, 113, 34)
         self.saveAsBox.show()
 
+    def selectInstrument(self):
+        # Create a gtk.Dialog
+        dialog = gtk.Dialog(None, self.mainwindow, gtk.DIALOG_DESTROY_WITH_PARENT,
+                            (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT, gtk.STOCK_CANCEL,
+                            gtk.RESPONSE_REJECT))
+        dialog.set_size_request(600,600)
+        dialog.set_resizable(False)
+        dialog.set_decorated(False)
+        dialog.modify_bg(gtk.STATE_NORMAL, self.bgcolor)
+        dialog.show()
+
+        # Create a table to display instruments and put it in gtk.Dialog
+        table = gtk.Table(5,5,True)
+        dialog.vbox.add(table)
+        table.show()
+
+        # Add instument's buttons to the table
+        images = ('CORNET','Drum','DRUMS','eletricGuitar','flute1','grandPiano','Guit1',
+                  'guiter2','GUITER','Lyre','MANDOLIN','ORGAN','Pupsing','Recorder1',
+                  'TROMBONE','Trumpet4','TRUMPET','Tuba1','TUBA','VIOLIN1')
+        i,j,k,l = (0,1,0,1)
+        for name in images:
+            image = gtk.Image()
+            image.set_from_file('pixmaps/instruments/' + name + '.png')
+            button = gtk.Button()
+            button.add(image)
+            image.show()
+            button.show()
+            if i==5:
+                i,j = (0,1)
+                k += 1
+                l += 1
+            table.attach(button, i, j, k, l)
+            i += 1
+            j += 1
+
+
 # Interface Test
 if __name__ == "__main__":
     window = Interface()

@@ -6,14 +6,10 @@
 ################################
 
 import gtk
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle # fall back on Python version
     
 class Menu:
-    def __init__(self, grid):
-        self.grid = grid
+    def __init__(self, base):
+        self.base = base
         self.menu = gtk.Menu()
         self.menuItem = {}
         for position in range(1,11):
@@ -29,29 +25,29 @@ class Menu:
             subMenuItem.connect("activate", self.chooseInstrument, position)
             self.menuItem[position].set_submenu(subMenu)
             subMenu.show()
-        self.menu.show()      
+        self.menu.show()
         # Connecting the Instruments Box
-        self.grid.gui.instrumentsBox.connect_object("event", self.instrumentButton, self.menu)
+        self.base.gui.instrumentsBox.connect_object("event", self.instrumentButton, self.menu)
 
     def instrumentButton(self, widget, event):
         if event.type == gtk.gdk.BUTTON_PRESS:
             if event.button == 1:
-                self.grid.clearSelectedCells()
                 widget.popup(None, None, None, event.button, event.time)
                 return True
             return False
         
     def chooseInstrument(self, widget, position):
-        openTreeview = Treeview(position, self.grid)
+        #openTreeview = Treeview(position, self.base)
+        self.base.gui.selectInstrument()
        
     def rebuildMenu(self, delete = None):
-        for position in self.grid.instrument.instruments.keys():
-            instrument = self.grid.instrument.instruments[position]
-            nameOfInstrument = self.grid.instrument.names[instrument]
+        for position in self.base.instrument.instruments.keys():
+            instrument = self.base.instrument.instruments[position]
+            nameOfInstrument = self.base.instrument.names[instrument]
             self.menuItem[position].remove_submenu()
             self.menuItem[position].get_children()[0].set_label(nameOfInstrument)
             subMenu = gtk.Menu()
-            if self.grid.information.activeInstrument != position:
+            if self.base.information.activeInstrument != position:
                 stateItem = gtk.MenuItem("Activate")
                 subMenu.append(stateItem)
                 stateItem.show()
@@ -83,38 +79,38 @@ class Menu:
             subMenu.show()
 
     def activateInstrument(self, widget, position):
-        self.grid.information.activeInstrument = position
+        self.base.information.activeInstrument = position
         #TODO: DIZER PARA O RESTO DOS MODULOS QUAL EH O NOVO INSTRUMENTO ATIVO
         self.rebuildMenu()
 
     def changeInstrument(self, widget, position):
-        openTreeview = Treeview(position, self.grid, change = True)
+        openTreeview = Treeview(position, self.base, change = True)
         
     def changeMenu(self, widget = None):
         self.rebuildMenu()
     
     def deleteInstrument(self, widget, position):
-        self.grid.instrument.delInstrument(position)
+        self.base.instrument.delInstrument(position)
         noteToDelete = {}
         for octave in range(0, 7):
-            for note in self.grid.information.octavelist[octave]:
+            for note in self.base.information.octavelist[octave]:
                 try: 
-                    del self.grid.information.octavelist[octave][note][2][position]
-                    if self.grid.information.octavelist[octave][note][2] == {}:
+                    del self.base.information.octavelist[octave][note][2][position]
+                    if self.base.information.octavelist[octave][note][2] == {}:
                         try: noteToDelete[note] += [octave]
                         except: noteToDelete[note] = [octave]
                 except: pass
-        octaveList = self.grid.information.octavelist[self.grid.current_octave - 1]
-        self.grid.rebuild_grid(octaveList, octaveList, 0, True)
+        octaveList = self.base.information.octavelist[self.base.current_octave - 1]
+        self.base.rebuild_base(octaveList, octaveList, 0, True)
         for note in noteToDelete.keys():
             for octave in noteToDelete[note]:
-                del self.grid.information.octavelist[octave][note]
+                del self.base.information.octavelist[octave][note]
         self.rebuildMenu(position)
-        self.grid.information.activeInstrument = None
+        self.base.information.activeInstrument = None
         
 class Instrument:
-    def __init__(self, grid):
-        self.grid = grid
+    def __init__(self, base):
+        self.base = base
         self.instruments = {} # It organizes the instruments of the composition
         # Getting Instrument Names
         self.names = ["Acoustic Piano", "Electric Piano", "Harpsichord", "Clavinet", "CELESTE",
@@ -138,11 +134,11 @@ class Instrument:
         # position = the position (1-10 where) it was put
         # instrument = the related integer of the instrument
         self.instruments[position] = instrument
-        self.grid.information.instruments[position] = instrument
+        self.base.information.instruments[position] = instrument
         
     def delInstrument(self, position):
         del self.instruments[position]
-        del self.grid.information.instruments[position]
+        del self.base.information.instruments[position]
         
 class Treeview:
     def __init__(self, position, grid, change = False):
