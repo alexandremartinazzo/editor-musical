@@ -1,7 +1,7 @@
 # sound.py
 # Get sound's events
 
-from csound import CsndPlayer
+from csound import *
 
 class SoundEvent:
     def __init__(self, type, properties = None):
@@ -21,15 +21,15 @@ class SoundEvent:
 class SoundConnectionCenter:
     def __init__(self):
         """ This class receives Sound's Events"""
-        self.csound = CsndPlayer('instruments/seno.csd')
+        self.csound = CsndPlayer()
     
     def send(self, soundEvent):
         type, properties = soundEvent.type, soundEvent.properties
         if type == 1:
             note, octave = properties
-            self.csound.play(note,octave)
-        elif type == 2:
-            self.csound.pause()
+            self.csound.play(ORGAN,note,1,octave)
+#       elif type == 2:
+#           self.csound.pause()
         elif type == 3:
             note, octave, x = properties
             print "PLAY FOR SIGNAL --> playing %s octave %s for %s seconds" % (note,octave,x)
