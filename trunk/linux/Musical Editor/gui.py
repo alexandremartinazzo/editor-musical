@@ -343,8 +343,8 @@ class InstrumentSelection:
         table.show()
 
         # Add instument's buttons to the table
-        images = ('CORNET','Drum','DRUMS','eletricGuitar','flute1','grandPiano','Guit1',
-                  'guiter2','GUITER','Lyre','MANDOLIN','ORGAN','Pupsing','Recorder1',
+        images = ('CLARINET','ORGAN','SIMPLE_DRUM','HIHAT','SENO','grandPiano','Guit1',
+                  'guiter2','GUITER','Lyre','MANDOLIN','Pupsing','flute1','Recorder1',
                   'TROMBONE','Trumpet4','TRUMPET','Tuba1','TUBA','VIOLIN1')
         i,j,k,l = (0,1,0,1)
         for name in images:

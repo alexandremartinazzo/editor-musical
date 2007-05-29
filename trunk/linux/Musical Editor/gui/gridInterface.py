@@ -34,10 +34,10 @@ class Grid(gtk.DrawingArea):
     PERCUSSION = (0,1,0) # Green
     BLOW = (1,0,1) # Purple
     OTHERS = (1,1,0) # Don't know yet
-    INSTRUMENT_COLOR = {'eletricGuitar':STRING, 'GUITER':STRING, 'Guit1':STRING, 'guiter2':STRING,
-                        'Lyre':STRING, 'VIOLIN1':STRING, 'MANDOLIN':STRING, 'DRUMS':PERCUSSION, 'Drum':PERCUSSION,
+    INSTRUMENT_COLOR = {'SENO':STRING, 'GUITER':STRING, 'Guit1':STRING, 'guiter2':STRING,
+                        'Lyre':STRING, 'VIOLIN1':STRING, 'MANDOLIN':STRING, 'SIMPLE_DRUM':PERCUSSION, 'HIHAT':PERCUSSION,
                         'ORGAN':PERCUSSION, 'grandPiano':PERCUSSION, 'flute1':BLOW, 'Tuba1':BLOW,
-                        'CORNET':BLOW, 'Recorder1':BLOW, 'TROMBONE':BLOW, 'Trumpet4':BLOW, 'TRUMPET':BLOW,
+                        'CLARINET':BLOW, 'Recorder1':BLOW, 'TROMBONE':BLOW, 'Trumpet4':BLOW, 'TRUMPET':BLOW,
                         'TUBA':BLOW, 'Pupsing':OTHERS} # Instrument colors
     def __init__(self, octaveList):
         #gtk.DrawingArea.__init__(self)
@@ -101,7 +101,8 @@ class Grid(gtk.DrawingArea):
             self.octaveList.create(1 + self.lastCell[0], 12 - self.lastCell[1], self.currentOctave, self.instrument)
         
             # Create a sound event
-            soundEvent = sound.SoundEvent(1, (self.notes[self.lastCell[1]],self.currentOctave))
+            properties = (self.notes[self.lastCell[1]],self.currentOctave, self.instrument)
+            soundEvent = sound.SoundEvent(1, properties)
             self.soundCC.send(soundEvent)
 
             position = self.positions.index(self.instrument)
@@ -138,7 +139,8 @@ class Grid(gtk.DrawingArea):
                 self.octaveList.create(1 + self.lastCell[0], 12 - self.lastCell[1], self.currentOctave, self.instrument)
 
                 # Create a sound event for playing
-                soundEvent = sound.SoundEvent(1, (self.notes[self.lastCell[1]],self.currentOctave))
+                properties = (self.notes[self.lastCell[1]],self.currentOctave, self.instrument)
+                soundEvent = sound.SoundEvent(1, properties)
                 self.soundCC.send(soundEvent)
 
                 position = self.positions.index(self.instrument)
