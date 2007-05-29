@@ -34,7 +34,7 @@ class Grid(gtk.DrawingArea):
     PERCUSSION = (0,1,0) # Green
     BLOW = (1,0,1) # Purple
     OTHERS = (1,1,0) # Don't know yet
-    INSTRUMENT_COLOR = {None:(0.2,0.2,1), 'eletricGuitar':STRING, 'Guit1':STRING, 'guiter2':STRING,
+    INSTRUMENT_COLOR = {'eletricGuitar':STRING, 'GUITER':STRING, 'Guit1':STRING, 'guiter2':STRING,
                         'lyre':STRING, 'VIOLIN1':STRING, 'MANDOLIN':STRING, 'DRUMS':PERCUSSION, 'Drum':PERCUSSION,
                         'ORGAN':PERCUSSION, 'grandPiano':PERCUSSION, 'flute1':BLOW, 'Tuba1':BLOW,
                         'CORNET':BLOW, 'Recorder1':BLOW, 'TROMBONE':BLOW, 'Trumpet4':BLOW, 'TRUMPET':BLOW,
@@ -91,19 +91,20 @@ class Grid(gtk.DrawingArea):
         self.setAction()
 
     def buttonPress(self, widget, event):
-        self.dragging = True
-        self.lastCell = ( int(event.x)/60 , int(event.y)/60 )
-        self.octaveList.create(1 + self.lastCell[0], 12 - self.lastCell[1], self.currentOctave, self.instrument)
+        if self.instrument:
+            self.dragging = True
+            self.lastCell = ( int(event.x)/60 , int(event.y)/60 )
+            self.octaveList.create(1 + self.lastCell[0], 12 - self.lastCell[1], self.currentOctave, self.instrument)
         
-        # Create a sound event
-        soundEvent = sound.SoundEvent(1, (self.notes[self.lastCell[1]],self.currentOctave))
-        self.soundCC.send(soundEvent)
+            # Create a sound event
+            soundEvent = sound.SoundEvent(1, (self.notes[self.lastCell[1]],self.currentOctave))
+            self.soundCC.send(soundEvent)
         
-        x = self.lastCell[0]*60 + 15 # Horizonatal center
-        y = self.lastCell[1]*60 + 20 # 20 is defined by instrument chosen number
-        begin = (x,y)
-        end = (x+30,y)
-        self.setAction("note", (begin,end))
+            x = self.lastCell[0]*60 + 15 # Horizonatal center
+            y = self.lastCell[1]*60 + 20 # 20 is defined by instrument chosen number
+            begin = (x,y)
+            end = (x+30,y)
+            self.setAction("note", (begin,end))
         
         
     def motionNotify(self, widget, event):

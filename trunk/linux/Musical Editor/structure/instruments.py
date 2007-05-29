@@ -45,65 +45,54 @@ class Menu:
             self.instruments[position] = instrument
             self.rebuildMenu()
        
-    def rebuildMenu(self, delete = None):
+    def rebuildMenu(self, position_to_delete = None):
         for position in range(1,11):
             instrument = self.instruments[position]
-            self.menuItem[position].remove_submenu()
-            self.menuItem[position].get_children()[0].set_label(instrument)
-            subMenu = gtk.Menu()
-            if self.base.information.activeInstrument != position:
-                stateItem = gtk.MenuItem("Activate")
-                subMenu.append(stateItem)
-                stateItem.show()
-                stateItem.connect("activate", self.activateInstrument, position)
-            else:
-                stateItem = gtk.MenuItem("Activated")
-                subMenu.append(stateItem)
-                stateItem.show()
-            changeItem = gtk.MenuItem("Change Instrument")
-            subMenu.append(changeItem)
-            changeItem.show()
-            changeItem.connect("activate", self.changeInstrument, position)
-            deleteItem = gtk.MenuItem("Delete")
-            subMenu.append(deleteItem)
-            deleteItem.show()
-            deleteItem.connect("activate", self.deleteInstrument, position) 
-            self.menuItem[position].set_submenu(subMenu)
-        if delete:
-            position = delete
-            self.menuItem[position].remove_submenu()
-            menuText = "Instrument %s" % position
-            self.menuItem[position].get_children()[0].set_label(menuText)
+            if instrument:
+                self.menuItem[position].remove_submenu()
+                self.menuItem[position].get_children()[0].set_label(instrument)
+                subMenu = gtk.Menu()
+                if self.base.information.activeInstrument != position:
+                    stateItem = gtk.MenuItem("Ativar")
+                    subMenu.append(stateItem)
+                    stateItem.show()
+                    stateItem.connect("activate", self.activateInstrument, position)
+                changeItem = gtk.MenuItem("Trocar")
+                subMenu.append(changeItem)
+                changeItem.show()
+                changeItem.connect("activate", self.chooseInstrument, position)
+                deleteItem = gtk.MenuItem("Excluir")
+                subMenu.append(deleteItem)
+                deleteItem.show()
+                deleteItem.connect("activate", self.deleteInstrument, position) 
+                self.menuItem[position].set_submenu(subMenu)
+        if position_to_delete:
+            self.menuItem[position_to_delete].remove_submenu()
+            menuText = "Instrumento %s" % position_to_delete
+            self.menuItem[position_to_delete].get_children()[0].set_label(menuText)
             subMenu = gtk.Menu()
             subMenuItem = gtk.MenuItem("Choose")
             subMenu.append(subMenuItem)
             subMenuItem.show()
-            subMenuItem.connect("activate", self.chooseInstrument, position)
-            self.menuItem[position].set_submenu(subMenu)
+            subMenuItem.connect("activate", self.chooseInstrument, position_to_delete)
+            self.menuItem[position_to_delete].set_submenu(subMenu)
             subMenu.show()
 
     def activateInstrument(self, widget, position):
+        self.base.gui.grid.instrument = self.instruments[position]
         self.base.information.activeInstrument = position
         self.rebuildMenu()
-
-    def changeInstrument(self, widget, position):
-        pass
     
     def deleteInstrument(self, widget, position):
-        self.base.instrument.delInstrument(position)
-        noteToDelete = {}
-        for octave in range(0, 7):
-            for note in self.base.information.octavelist[octave]:
-                try: 
-                    del self.base.information.octavelist[octave][note][2][position]
-                    if self.base.information.octavelist[octave][note][2] == {}:
-                        try: noteToDelete[note] += [octave]
-                        except: noteToDelete[note] = [octave]
-                except: pass
-        octaveList = self.base.information.octavelist[self.base.current_octave - 1]
-        self.base.rebuild_base(octaveList, octaveList, 0, True)
-        for note in noteToDelete.keys():
-            for octave in noteToDelete[note]:
-                del self.base.information.octavelist[octave][note]
+        instrument = self.instruments[position]
+        self.instruments[position] = None
+        if instrument == self.base.gui.grid.instrument:
+            self.base.gui.grid.instrument = None
+            self.base.information.activeInstrument = None                    
+        for octave in range (1,8):
+            try:
+                del self.base.gui.grid.octaveList.octaveList[octave][instrument]
+                del self.base.gui.grid.noteToPaint[instrument]
+                self.base.gui.grid.setAction()
+            except: pass
         self.rebuildMenu(position)
-        self.base.information.activeInstrument = None
