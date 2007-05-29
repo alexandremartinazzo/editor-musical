@@ -9,7 +9,7 @@ import gtk
     
 class Menu:
     def __init__(self, base):
-        self.instruments = [None,None,None,None,None,None,None,None,None,None,None]
+        self.instruments = base.gui.grid.positions
         self.base = base
         self.menu = gtk.Menu()
         self.menuItem = {}
@@ -41,8 +41,22 @@ class Menu:
         instrument = self.base.gui.selectInstrument()
         if instrument:
             self.base.gui.grid.instrument = instrument # current active instrument
-            self.base.information.activeInstrument = position # current active instrument index
+            self.base.gui.grid.instrumentPosition = position # current active instrument index
             self.instruments[position] = instrument
+            self.rebuildMenu()        
+
+    def changeInstrument(self, widget, position):
+        instrument = self.base.gui.selectInstrument()
+        if instrument:
+            instrumentBefore = self.instruments[position]
+            if self.base.gui.grid.instrument == instrumentBefore: self.base.gui.grid.instrument = instrument
+            self.instruments[position] = instrument # set the new instrument
+            for octave in range(1,8):
+                try:
+                    self.base.gui.grid.octaveList.octaveList[octave][instrument] = self.base.gui.grid.octaveList.octaveList[octave][instrumentBefore]
+                    del self.base.gui.grid.octaveList.octaveList[octave][instrumentBefore]
+                except: pass
+            self.base.gui.grid.changeOctave()
             self.rebuildMenu()
        
     def rebuildMenu(self, position_to_delete = None):
@@ -52,7 +66,7 @@ class Menu:
                 self.menuItem[position].remove_submenu()
                 self.menuItem[position].get_children()[0].set_label(instrument)
                 subMenu = gtk.Menu()
-                if self.base.information.activeInstrument != position:
+                if self.base.gui.grid.instrumentPosition != position:
                     stateItem = gtk.MenuItem("Ativar")
                     subMenu.append(stateItem)
                     stateItem.show()
@@ -60,7 +74,7 @@ class Menu:
                 changeItem = gtk.MenuItem("Trocar")
                 subMenu.append(changeItem)
                 changeItem.show()
-                changeItem.connect("activate", self.chooseInstrument, position)
+                changeItem.connect("activate", self.changeInstrument, position)
                 deleteItem = gtk.MenuItem("Excluir")
                 subMenu.append(deleteItem)
                 deleteItem.show()
@@ -80,7 +94,7 @@ class Menu:
 
     def activateInstrument(self, widget, position):
         self.base.gui.grid.instrument = self.instruments[position]
-        self.base.information.activeInstrument = position
+        self.base.gui.grid.instrumentPosition = position
         self.rebuildMenu()
     
     def deleteInstrument(self, widget, position):
@@ -88,7 +102,7 @@ class Menu:
         self.instruments[position] = None
         if instrument == self.base.gui.grid.instrument:
             self.base.gui.grid.instrument = None
-            self.base.information.activeInstrument = None                    
+            self.base.gui.grid.instrumentPosition = None                    
         for octave in range (1,8):
             try:
                 del self.base.gui.grid.octaveList.octaveList[octave][instrument]

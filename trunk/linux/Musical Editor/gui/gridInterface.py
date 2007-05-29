@@ -35,7 +35,7 @@ class Grid(gtk.DrawingArea):
     BLOW = (1,0,1) # Purple
     OTHERS = (1,1,0) # Don't know yet
     INSTRUMENT_COLOR = {'eletricGuitar':STRING, 'GUITER':STRING, 'Guit1':STRING, 'guiter2':STRING,
-                        'lyre':STRING, 'VIOLIN1':STRING, 'MANDOLIN':STRING, 'DRUMS':PERCUSSION, 'Drum':PERCUSSION,
+                        'Lyre':STRING, 'VIOLIN1':STRING, 'MANDOLIN':STRING, 'DRUMS':PERCUSSION, 'Drum':PERCUSSION,
                         'ORGAN':PERCUSSION, 'grandPiano':PERCUSSION, 'flute1':BLOW, 'Tuba1':BLOW,
                         'CORNET':BLOW, 'Recorder1':BLOW, 'TROMBONE':BLOW, 'Trumpet4':BLOW, 'TRUMPET':BLOW,
                         'TUBA':BLOW, 'Pupsing':OTHERS} # Instrument colors
@@ -53,10 +53,13 @@ class Grid(gtk.DrawingArea):
         self.set_size_request(self.width, self.height)
         self.columns = False
         self.paintNotes = False
+        self.noteToPaint = {}
         self.dragging = False
         self.lastCell = None
         self.currentOctave = 4
-        self.instrument = None
+        self.instrument = None # Name of the active instrument
+        self.positions = [None,None,None,None,None,None,None,None,None,None,None] # index of instruments
+        self.instrumentPosition = None # index of active instrument
         self.show()
         self.soundCC = sound.SoundConnectionCenter()
         self.notes = ("c", "c#", "d", "d#", "e", "f", "f#", 
@@ -79,12 +82,13 @@ class Grid(gtk.DrawingArea):
         octaveDict = self.octaveList.octaveList[self.currentOctave]
         for instrument in octaveDict:
             self.noteToPaint[instrument] = []
+            position = self.positions.index(instrument)
             for properties in octaveDict[instrument]:
                 line, column, duration = properties
                 line = 12 - line
                 column -= 1
                 x = column*60 + 15 # Horizonatal center
-                y = line*60 + 20 # 20 is defined by instrument chosen number
+                y = line*60 + (position-1)*6 + 3 # height defined by instrument index
                 begin = (x,y)
                 end = (x+30 + (duration-1)*60, y)
                 self.noteToPaint[instrument] += [(begin,end)]
@@ -99,9 +103,11 @@ class Grid(gtk.DrawingArea):
             # Create a sound event
             soundEvent = sound.SoundEvent(1, (self.notes[self.lastCell[1]],self.currentOctave))
             self.soundCC.send(soundEvent)
-        
+
+            position = self.positions.index(self.instrument)
+
             x = self.lastCell[0]*60 + 15 # Horizonatal center
-            y = self.lastCell[1]*60 + 20 # 20 is defined by instrument chosen number
+            y = self.lastCell[1]*60 + (position-1)*6 + 3 # height defined by instrument index
             begin = (x,y)
             end = (x+30,y)
             self.setAction("note", (begin,end))
@@ -134,9 +140,11 @@ class Grid(gtk.DrawingArea):
                 # Create a sound event for playing
                 soundEvent = sound.SoundEvent(1, (self.notes[self.lastCell[1]],self.currentOctave))
                 self.soundCC.send(soundEvent)
-                
+
+                position = self.positions.index(self.instrument)
+
                 x = self.lastCell[0]*60 + 15
-                y = self.lastCell[1]*60 + 20 # 20 is defined by instrument number chosen
+                y = self.lastCell[1]*60 + (position-1)*6 + 3 # height defined by instrument index
                 begin = (x,y)
                 end = (x+30,y)
                 self.setAction("note", (begin,end))
@@ -187,7 +195,7 @@ class Grid(gtk.DrawingArea):
                 knownNote = properties in self.noteToPaint[self.instrument] # Verify if the note is already painted
                 if not knownNote: self.noteToPaint[self.instrument] += [properties]
             except:
-                self.noteToPaint = {self.instrument:[properties]}
+                self.noteToPaint[self.instrument] = [properties]
         alloc = self.get_allocation()
         rect = gtk.gdk.Rectangle(alloc.x, alloc.y, alloc.width, alloc.height)
         self.window.invalidate_rect(rect, True)
