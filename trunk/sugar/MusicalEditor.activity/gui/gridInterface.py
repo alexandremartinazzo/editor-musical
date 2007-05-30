@@ -52,6 +52,7 @@ class Grid(gtk.DrawingArea):
         self.height = 720
         self.set_size_request(self.width, self.height)
         self.columns = False
+        self.column = 0 # the last painted column
         self.paintNotes = False
         self.noteToPaint = {}
         self.dragging = False
@@ -78,6 +79,7 @@ class Grid(gtk.DrawingArea):
         return False
 
     def changeOctave(self):
+        self.column = 0
         self.noteToPaint = {} # key:value >> instrument:[notes], note = (line,column,duration)
         octaveDict = self.octaveList.octaveList[self.currentOctave]
         for instrument in octaveDict:
@@ -94,10 +96,14 @@ class Grid(gtk.DrawingArea):
                 self.noteToPaint[instrument] += [(begin,end)]
         self.setAction()
 
-    def buttonPress(self, widget, event):
+    def buttonPress(self, widget=None, event=None, paint=None):
         if self.instrument:
             self.dragging = True
-            self.lastCell = ( int(event.x)/60 , int(event.y)/60 )
+            if paint:
+                self.lastCell = paint
+            else:
+                self.lastCell = ( int(event.x)/60 , int(event.y)/60 )
+            self.column = self.lastCell[0]
             self.octaveList.create(1 + self.lastCell[0], 12 - self.lastCell[1], self.currentOctave, self.instrument)
         
             # Create a sound event
@@ -114,9 +120,20 @@ class Grid(gtk.DrawingArea):
             self.setAction("note", (begin,end))
         
         
-    def motionNotify(self, widget, event):
+    def motionNotify(self, widget=None, event=None, paint = None):
         if self.dragging:
-            if int(event.x)/60 != self.lastCell[0] and int(event.y)/60 == self.lastCell[1]:
+            if paint:
+                self.lastCell = paint
+                self.octaveList.createDragging(1 + self.lastCell[0], 12 - self.lastCell[1], self.currentOctave, self.instrument)
+                newEndx = self.lastCell[0]*60 + 45
+                counter = len(self.noteToPaint[self.instrument])
+                oldEndx = self.noteToPaint[self.instrument][counter-1][1][0]
+                if newEndx > oldEndx:
+                    begin, end = self.noteToPaint[self.instrument][counter-1]
+                    end = (newEndx, end[1])
+                    self.noteToPaint[self.instrument][counter-1] = (begin,end)
+                    self.setAction()
+            elif (int(event.x)/60 != self.lastCell[0] and int(event.y)/60 == self.lastCell[1]):
                 # Cells at the same line
                 self.lastCell = ( int(event.x)/60 , int(event.y)/60 )
                 self.octaveList.createDragging(1 + self.lastCell[0], 12 - self.lastCell[1], self.currentOctave, self.instrument)
@@ -128,7 +145,6 @@ class Grid(gtk.DrawingArea):
                     end = (newEndx, end[1])
                     self.noteToPaint[self.instrument][counter-1] = (begin,end)
                     self.setAction()
-
             elif int(event.y-1)/60 != self.lastCell[1]:
                 # Create a sound event for stoping
                 soundEvent = sound.SoundEvent(2)

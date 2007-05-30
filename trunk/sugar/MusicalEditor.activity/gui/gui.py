@@ -27,7 +27,11 @@ class Interface:
         self.createBackground() # the color is set to yellow
         self.createGrid(octaveList)
         self.createButtons()
-        self.octaveNumbers = {1:self.octave1,2:self.octave2,3:self.octave3,4:self.octave4,5:self.octave5,6:self.octave6,7:self.octave7}
+
+        # parameters
+        self.dragging = {}
+        self.octaveNumbers = {'1':self.octave1,'2':self.octave2,'3':self.octave3,'4':self.octave4,'5':self.octave5,'6':self.octave6,'7':self.octave7}
+        self.notesToPlay = {'a':11,'w':10,'s':9,'e':8,'d':7,'f':6,'t':5,'g':4,'y':3,'h':2,'u':1,'j':0}
 
         # Changes the mouse cursor
         #pix = gtk.gdk.pixbuf_new_from_file("composeCursor.png")
@@ -43,11 +47,34 @@ class Interface:
         self.fixed.set_size_request(1200,900)
         self.fixed.set_has_window(True)
         self.fixed.show()
-        self.fixed.connect('key_press_event',self.key_press) 
 
     def key_press(self, widget, event):
         if event.string in self.octaveNumbers.keys():
-            self.octaveNumbers[event.string].set_active(True)            
+            self.octaveNumbers[event.string].set_active(True)
+        elif event.string in self.notesToPlay.keys():
+            line = self.notesToPlay[event.string]
+            column = self.grid.column
+            self.dragging[event.string] = 'flag'
+            paint = (column,line)
+            self.grid.buttonPress(None,None,paint)
+        elif gtk.gdk.keyval_name(event.keyval) in ('Left','Right'):
+            key = gtk.gdk.keyval_name(event.keyval)
+            if key == 'Left':
+                if self.grid.column>0:
+                    self.grid.column -= 1
+            else:
+                self.grid.column += 1
+                for pressed_notes in self.dragging.keys():
+                    line = self.notesToPlay[pressed_notes]
+                    column = self.grid.column
+                    paint = (column,line)
+                    self.grid.motionNotify(None,None,paint)
+                    
+    def key_release(self, widget, event):
+        if event.string in self.notesToPlay.keys():
+            try: del self.dragging[event.string]
+            except: pass
+        
 
     def createBackground(self):
         self.background = gtk.Image()

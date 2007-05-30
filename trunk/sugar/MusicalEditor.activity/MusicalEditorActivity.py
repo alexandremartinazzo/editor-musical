@@ -20,4 +20,6 @@ class MusicalEditorActivity(activity.Activity):
         self.base = base.Base(self.interface, self.information)
         self.add(self.interface.fixed)
         self.set_title('Musical Editor')
+        self.connect('key_press_event',self.interface.key_press)
+        self.connect('key_release_event',self.interface.key_release)
         self.show()
