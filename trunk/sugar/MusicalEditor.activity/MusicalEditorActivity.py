@@ -7,6 +7,7 @@ import sys, os
 sys.path.append(os.path.join(activity.get_bundle_path(), "structure"))
 sys.path.append(os.path.join(activity.get_bundle_path(), "gui"))
 sys.path.append(os.path.join(activity.get_bundle_path(), "sound"))
+sys.path.append(os.path.join(activity.get_bundle_path(), "sound/XOKeyBoard"))
 import gui, base, information
 import gtk
 

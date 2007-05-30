@@ -1,7 +1,7 @@
 # sound.py
 # Get sound's events
 
-#from csound import *
+from csound import *
 
 class SoundEvent:
     def __init__(self, type, properties = None):
@@ -14,20 +14,22 @@ class SoundEvent:
 
         self.PLAYFORX_TYPE = 3    # Play a note for x seconds
                                   # properties = (note,octave, instrument, x)
-        
+
         self.type = type          # type index
         self.properties = properties
-        
+     
 class SoundConnectionCenter:
-    instruments = {'SENO':[1,''],'SIMPLE_DRUM':[2,10000],'ORGAN':[3,300],'CLARINET':[4,7000],'HIHAT':[5,'']}
     def __init__(self):
         """ This class receives Sound's Events"""
         self.csound = CsndPlayer()
+        self.instruments = {'SENO':SENO,'SIMPLE_DRUM':SIMPLE_DRUM,'ORGAN':ORGAN,'CLARINET':CLARINET,'HIHAT':HIHAT}
+        self.notes = {'DO':DO,'DOs':DOs,'RE':RE,'REs':REs,'MI':MI,'FA':FA,'FAs':FAs,'SOL':SOL,'SOLs':SOLs,'LA':LA,'LAs':LAs,'SI':SI}
     def send(self, soundEvent):
         type, properties = soundEvent.type, soundEvent.properties
         if type == 1:
             note, octave, instrument = properties
- #           self.csound.play(ORGAN,note,1,octave)
+            if instrument in self.instruments.keys():
+                self.csound.playInstr(self.instruments[instrument],self.notes[note],1.0,octave)
 #       elif type == 2:
 #           self.csound.pause()
         elif type == 3:

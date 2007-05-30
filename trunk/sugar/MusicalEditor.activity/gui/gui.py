@@ -11,6 +11,7 @@
 from sugar.activity import activity
 import gtk,os
 from gridInterface import Grid
+import sound, xokb
 
 class Interface:
     """This class builds the main window and its components"""
@@ -26,6 +27,7 @@ class Interface:
         self.createBackground() # the color is set to yellow
         self.createGrid(octaveList)
         self.createButtons()
+        self.octaveNumbers = {1:self.octave1,2:self.octave2,3:self.octave3,4:self.octave4,5:self.octave5,6:self.octave6,7:self.octave7}
 
         # Changes the mouse cursor
         #pix = gtk.gdk.pixbuf_new_from_file("composeCursor.png")
@@ -41,6 +43,11 @@ class Interface:
         self.fixed.set_size_request(1200,900)
         self.fixed.set_has_window(True)
         self.fixed.show()
+        self.fixed.connect('key_press_event',self.key_press) 
+
+    def key_press(self, widget, event):
+        if event.string in self.octaveNumbers.keys():
+            self.octaveNumbers[event.string].set_active(True)            
 
     def createBackground(self):
         self.background = gtk.Image()
@@ -298,7 +305,7 @@ class Interface:
         self.saveAsBox.show()
 
     def selectInstrument(self):
-        dialog = InstrumentSelection(self.fixed.get_parent())
+        dialog = InstrumentSelection(self.fixed.get_parent(), self.grid.soundCC)
         instrument = dialog.run()
         dialog.destroy()
         return instrument
@@ -307,7 +314,7 @@ class InstrumentSelection:
     def destroy(self):
         self.dialog.destroy()
 
-    def __init__(self, parentWindow):
+    def __init__(self, parentWindow, csoundCC):
         self.__selected = None # selected instrument
         # Create a gtk.Dialog
         self.dialog = gtk.Dialog(None, parentWindow, gtk.DIALOG_DESTROY_WITH_PARENT,
@@ -318,7 +325,11 @@ class InstrumentSelection:
         self.dialog.set_decorated(False)
         self.dialog.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color(64507,58596,32125))
         self.dialog.connect('response', self.response_event)
+        self.dialog.connect('key_press_event',self.key_press) 
         self.dialog.show()
+        self.oct = 4
+        self.notes=dict(a='DO',w='DOs',s='RE',e='REs',d='MI',f='FA',t='FAs',g='SOL',y='SOLs',h='LA',u='LAs',j='SI',c=500,v=2000,b=1000,n=3000)
+        self.soundCC = csoundCC
 
         # Create a table to display instruments and put it in gtk.Dialog
         table = gtk.Table(5,5,True)
@@ -348,6 +359,18 @@ class InstrumentSelection:
 
     def select(self, widget, event, name):
         self.__selected = name
+
+    def key_press(self, widget, event):
+        if event.string == '[':
+            self.oct-=1
+            return 
+        elif event.string == ']':
+            self.oct+=1
+            return
+        if event.string in self.notes.keys() and self.__selected:
+            properties = (self.notes[event.string],self.oct, self.__selected)
+            soundEvent = sound.SoundEvent(1, properties)
+            self.soundCC.send(soundEvent)        
 
     def response_event(self, widget, response_id):
         if response_id == gtk.RESPONSE_ACCEPT:

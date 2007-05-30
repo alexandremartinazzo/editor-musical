@@ -34,9 +34,9 @@ class Grid(gtk.DrawingArea):
     PERCUSSION = (0,1,0) # Green
     BLOW = (1,0,1) # Purple
     OTHERS = (1,1,0) # Don't know yet
-    INSTRUMENT_COLOR = {'SENO':STRING, 'GUITER':STRING, 'Guit1':STRING, 'guiter2':STRING,
-                        'Lyre':STRING, 'VIOLIN1':STRING, 'MANDOLIN':STRING, 'SIMPLE_DRUM':PERCUSSION, 'HIHAT':PERCUSSION,
-                        'ORGAN':PERCUSSION, 'grandPiano':PERCUSSION, 'flute1':BLOW, 'Tuba1':BLOW,
+    INSTRUMENT_COLOR = {'SENO':STRING, 'SIMPLE_DRUM':PERCUSSION, 'HIHAT':PERCUSSION, 'ORGAN':PERCUSSION, 'GUITER':STRING,
+                        'Lyre':STRING, 'VIOLIN1':STRING, 'MANDOLIN':STRING, 'Guit1':STRING, 'guiter2':STRING,
+                        'grandPiano':PERCUSSION, 'flute1':BLOW, 'Tuba1':BLOW,
                         'CLARINET':BLOW, 'Recorder1':BLOW, 'TROMBONE':BLOW, 'Trumpet4':BLOW, 'TRUMPET':BLOW,
                         'TUBA':BLOW, 'Pupsing':OTHERS} # Instrument colors
     def __init__(self, octaveList):
@@ -62,8 +62,8 @@ class Grid(gtk.DrawingArea):
         self.instrumentPosition = None # index of active instrument
         self.show()
         self.soundCC = sound.SoundConnectionCenter()
-        self.notes = ("c", "c#", "d", "d#", "e", "f", "f#", 
-                 "g", "g#", "a", "a#", "b")
+        self.notes = ("DO", "DOs", "RE", "REs", "MI", "FA", "FAs", 
+                 "SOL", "SOLs", "LA", "LAs", "SI")
 
         self.add_events(gtk.gdk.BUTTON_PRESS_MASK |
                         gtk.gdk.BUTTON_RELEASE_MASK |
