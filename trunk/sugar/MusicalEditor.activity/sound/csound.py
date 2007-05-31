@@ -1,5 +1,7 @@
 #!/usr/bin/python
-import csnd,time
+import csnd,time,os
+
+from sugar.activity import activity
 
 
 # Some constants defined here. 
@@ -33,11 +35,12 @@ DRUM
 
 class CsndPlayer(object):
 	"""Classe que representa a instancia do csound. Recebe os sinais para tocar ou parar de tocar notas."""
-	def __init__(self):
+	def __init__(self,csd):
 		"""csd: arquivo com as definicoes do(s) instrumento(s)"""
+		self.csd = csd
 		self.playing  = False
 		self.cs = csnd.Csound() # nova instancia do Csound
-		self.cs.Compile('instruments.csd') # Compila arquivo .csd 
+		self.cs.Compile(self.csd) # Compila arquivo .csd 
 		self.th = csnd.CsoundPerformanceThread(self.cs) # Inicializa uma thread executar para a partitura
 
 	def playInstr(self, instr, note, dur=1.0,octave=4,*args):
@@ -52,19 +55,18 @@ class CsndPlayer(object):
 			self.playing = True
 		return 0
 
-	def play(self):
+	def play(self,instr,note=LA): #not working yet...
+		self.playInstr(instr,note,20)
 		self.playing = True
-		return self.th.Play()
 
 	def stop(self):
 		self.playing = False
 		self.th.Stop()
-		self.th = csnd.CsoundPerformanceThread(self.cs)
 		
 if __name__ == "__main__":
 	"""Exemplo de como usar o CsndPlayer"""
 	player = CsndPlayer()
-	player.playInstr(SIMPLE_DRUM,LA,2,4)
+	player.playInstr(ORGAN,LA,2,4)
 	raw_input()
 	player.stop()
 	import sys

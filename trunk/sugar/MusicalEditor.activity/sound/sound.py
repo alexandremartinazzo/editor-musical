@@ -21,7 +21,8 @@ class SoundEvent:
 class SoundConnectionCenter:
     def __init__(self):
         """ This class receives Sound's Events"""
-        self.csound = CsndPlayer()
+        csd = os.path.join(activity.get_bundle_path(),"sound/instruments.csd")
+        self.csound = CsndPlayer(csd)
         self.instruments = {'SENO':SENO,'SIMPLE_DRUM':SIMPLE_DRUM,'ORGAN':ORGAN,'CLARINET':CLARINET,'HIHAT':HIHAT}
         self.notes = {'DO':DO,'DOs':DOs,'RE':RE,'REs':REs,'MI':MI,'FA':FA,'FAs':FAs,'SOL':SOL,'SOLs':SOLs,'LA':LA,'LAs':LAs,'SI':SI}
     def send(self, soundEvent):
