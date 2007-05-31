@@ -5,7 +5,8 @@
 # Project based on OLPC        #
 ################################
 
-import gtk
+from sugar.activity import activity
+import gtk,os
     
 class Menu:
     def __init__(self, base):
@@ -43,7 +44,7 @@ class Menu:
             self.base.gui.grid.instrument = instrument # current active instrument
             self.base.gui.grid.instrumentPosition = position # current active instrument index
             self.instruments[position] = instrument
-            self.rebuildMenu()        
+            self.rebuildMenu()
 
     def changeInstrument(self, widget, position):
         instrument = self.base.gui.selectInstrument()
@@ -60,6 +61,13 @@ class Menu:
             self.rebuildMenu()
        
     def rebuildMenu(self, position_to_delete = None):
+        self.base.gui.instrumentsImage.clear()
+        name = self.base.gui.grid.instrument
+        if name:
+            self.base.gui.instrumentsImage.set_from_file(os.path.join(activity.get_bundle_path(), "pixmaps/instruments/" + name + '.png'))
+        else:
+            self.base.gui.instrumentsImage.set_from_file(os.path.join(activity.get_bundle_path(), "pixmaps/instruments.png"))
+        self.base.gui.instrumentsImage.show()
         for position in range(1,11):
             instrument = self.instruments[position]
             if instrument:

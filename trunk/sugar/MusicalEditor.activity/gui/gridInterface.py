@@ -8,9 +8,6 @@
 # grid.py
 # Grid is a new gtk widget created for this software
 
-#TODO: CRIAR LISTA SELF.PAINTNOTES COM NOTAS PITADAS EM CADA OITAVA E MANDA
-# ATUALIZA-LAS.
-
 import gtk, gobject
 import sound
 
@@ -34,11 +31,10 @@ class Grid(gtk.DrawingArea):
     PERCUSSION = (0,1,0) # Green
     BLOW = (1,0,1) # Purple
     OTHERS = (1,1,0) # Don't know yet
-    INSTRUMENT_COLOR = {'SENO':STRING, 'SIMPLE_DRUM':PERCUSSION, 'HIHAT':PERCUSSION, 'ORGAN':PERCUSSION, 'GUITER':STRING,
-                        'Lyre':STRING, 'VIOLIN1':STRING, 'MANDOLIN':STRING, 'Guit1':STRING, 'guiter2':STRING,
-                        'grandPiano':PERCUSSION, 'flute1':BLOW, 'Tuba1':BLOW,
-                        'CLARINET':BLOW, 'Recorder1':BLOW, 'TROMBONE':BLOW, 'Trumpet4':BLOW, 'TRUMPET':BLOW,
-                        'TUBA':BLOW, 'Pupsing':OTHERS} # Instrument colors
+    INSTRUMENT_COLOR = {'SENO':STRING, 'SIMPLE_DRUM':PERCUSSION, 'HIHAT':PERCUSSION, 'ORGAN':PERCUSSION, 'contrabass':STRING,
+                        'Lyre':STRING, 'violoncelo':STRING, 'MANDOLIN':STRING, 'guiter2':STRING, 'tuba':BLOW, 'Pupsing':OTHERS,
+                        'grandPiano':PERCUSSION, 'flute1':BLOW, 'mellophone':BLOW, 'xylophone':PERCUSSION,'timbale':PERCUSSION,
+                        'CLARINET':BLOW, 'Recorder1':BLOW, 'trombone':BLOW, 'trumpet':BLOW, 'sax':BLOW} # instrument colors
     def __init__(self, octaveList):
         #gtk.DrawingArea.__init__(self)
         super(Grid,self).__init__()
@@ -79,7 +75,6 @@ class Grid(gtk.DrawingArea):
         return False
 
     def changeOctave(self):
-        self.column = 0
         self.noteToPaint = {} # key:value >> instrument:[notes], note = (line,column,duration)
         octaveDict = self.octaveList.octaveList[self.currentOctave]
         for instrument in octaveDict:
@@ -122,18 +117,7 @@ class Grid(gtk.DrawingArea):
         
     def motionNotify(self, widget=None, event=None, paint = None):
         if self.dragging:
-            if paint:
-                self.lastCell = paint
-                self.octaveList.createDragging(1 + self.lastCell[0], 12 - self.lastCell[1], self.currentOctave, self.instrument)
-                newEndx = self.lastCell[0]*60 + 45
-                counter = len(self.noteToPaint[self.instrument])
-                oldEndx = self.noteToPaint[self.instrument][counter-1][1][0]
-                if newEndx > oldEndx:
-                    begin, end = self.noteToPaint[self.instrument][counter-1]
-                    end = (newEndx, end[1])
-                    self.noteToPaint[self.instrument][counter-1] = (begin,end)
-                    self.setAction()
-            elif (int(event.x)/60 != self.lastCell[0] and int(event.y)/60 == self.lastCell[1]):
+            if (int(event.x)/60 != self.lastCell[0] and int(event.y)/60 == self.lastCell[1]):
                 # Cells at the same line
                 self.lastCell = ( int(event.x)/60 , int(event.y)/60 )
                 self.octaveList.createDragging(1 + self.lastCell[0], 12 - self.lastCell[1], self.currentOctave, self.instrument)
@@ -166,7 +150,18 @@ class Grid(gtk.DrawingArea):
                 begin = (x,y)
                 end = (x+30,y)
                 self.setAction("note", (begin,end))
-            
+        if paint:
+            self.lastCell = paint
+            self.octaveList.createDragging(1 + self.lastCell[0], 12 - self.lastCell[1], self.currentOctave, self.instrument)
+            newEndx = self.lastCell[0]*60 + 45
+            counter = len(self.noteToPaint[self.instrument])
+            oldEndx = self.noteToPaint[self.instrument][counter-1][1][0]
+            if newEndx > oldEndx:
+                begin, end = self.noteToPaint[self.instrument][counter-1]
+                end = (newEndx, end[1])
+                self.noteToPaint[self.instrument][counter-1] = (begin,end)
+                self.setAction()
+
     def buttonRelease(self, widget, event):
         self.dragging = False
         # Create an event to pause the sound

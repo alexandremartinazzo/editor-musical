@@ -54,9 +54,10 @@ class Interface:
         elif event.string in self.notesToPlay.keys():
             line = self.notesToPlay[event.string]
             column = self.grid.column
-            self.dragging[event.string] = 'flag'
+            self.dragging[event.string] = True
             paint = (column,line)
             self.grid.buttonPress(None,None,paint)
+            self.grid.dragging = False
         elif gtk.gdk.keyval_name(event.keyval) in ('Left','Right'):
             key = gtk.gdk.keyval_name(event.keyval)
             if key == 'Left':
@@ -114,7 +115,7 @@ class Interface:
         for i in range(0,12):
             eventbox = gtk.EventBox()
             note = gtk.Label()
-            note.set_markup("<span font_family='arial' size='15000' color = '#0f70e8'><b>%s</b></span>" % notes[i])
+            note.set_markup("<span font_family='arial' size='8000' color = '#0f70e8'><b>%s</b></span>" % notes[i])
             eventbox.modify_bg(gtk.STATE_NORMAL, self.color4)
             eventbox.set_size_request(59,59)
             eventbox.add(note)
@@ -201,7 +202,7 @@ class Interface:
         self.instrumentsBox = gtk.EventBox()
         self.instrumentsBox.add(self.instrumentsImage)
         self.instrumentsBox.set_visible_window(False)
-        self.fixed.put(self.instrumentsBox, 75, 150)
+        self.fixed.put(self.instrumentsBox, 75, 120)
         self.instrumentsBox.show()
         
         # Compose Button
@@ -364,9 +365,9 @@ class InstrumentSelection:
         table.show()
 
         # Add instument's buttons to the table
-        images = ('CLARINET','ORGAN','SIMPLE_DRUM','HIHAT','SENO','grandPiano','Guit1',
-                  'guiter2','GUITER','Lyre','MANDOLIN','Pupsing','flute1','Recorder1',
-                  'TROMBONE','Trumpet4','TRUMPET','Tuba1','TUBA','VIOLIN1')
+        images = ('CLARINET','ORGAN','SENO','SIMPLE_DRUM','HIHAT','contrabass','mellophone',
+                  'trombone','guitar','trumpet','tuba','violin','sax','violoncelo','xylophone',                 
+                  'timbale', 'guiter2','Lyre','MANDOLIN','Pupsing','flute1','Recorder1','grandPiano')
         i,j,k,l = (0,1,0,1)
         for name in images:
             image = gtk.Image()
