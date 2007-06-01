@@ -1,0 +1,44 @@
+# How to install in sugar:
+Just copy the folder "MusicalEditor.activity" to "/usr/share/activities/" and restart X or reboot your computer.
+
+# How to install in OS without sugar:
+You don't need to install, you just need to have CSound, gtk and python previously installed and then run from the MusicalEditor.activity folder:
+python MusicalEditorActivity.py
+
+# Shortcut Keyboard keys
+"Playing Notes with keyboard"
+a - play Do
+w - play Do#
+s - play Re
+e - play Re#
+d - play Mi
+f - play Fa
+t - play Fa#
+g - play Sol
+y - play Sol#
+h - play La
+u - play La#
+j - play Si
+
+"Changing octave"
+1 - go to octave 1
+2 - go to octave 2
+3 - go to octave 3
+4 - go to octave 4
+5 - go to octave 5
+6 - go to octave 6
+7 - go to octave 7
+[ - go previous octave
+] - go next octave
+
+"Shortcuts for painting with keyboard"
+'After choosing an instrument, you may paint the grid by using mouse or the keyboard.
+To use the keyboard, you may play a note using the keys listed above and use the left and right arrow keys to extend the note duration.'
+left - go one column to left
+right - go one column to right
++ - adds 50 more columns (time) to composition
+
+Contacting for help:
+Bruno Fialho Marques Gola - brunogola@gmail.com
+Rafael Barbolo Lopes - barbolo@gmail.com
+NATE-LSI - nate-lsi@googlegroups.com

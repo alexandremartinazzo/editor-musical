@@ -42,6 +42,14 @@ class Interface:
     def key_press(self, widget, event):
         if event.string in self.octaveNumbers.keys():
             self.octaveNumbers[event.string].set_active(True)
+        elif event.string == '[':
+            octave = self.grid.currentOctave
+            if octave > 1:
+                self.octaveNumbers[str(octave-1)].set_active(True)
+        elif event.string == ']':
+            octave = self.grid.currentOctave
+            if octave < 7:
+                self.octaveNumbers[str(octave+1)].set_active(True)
         elif event.string in self.notesToPlay.keys():
             line = self.notesToPlay[event.string]
             column = self.grid.column
@@ -49,6 +57,8 @@ class Interface:
             paint = (column,line)
             self.grid.buttonPress(None,None,paint)
             self.grid.dragging = False
+        elif gtk.gdk.keyval_name(event.keyval) == 'plus':
+            self.grid.setAction("columns",50)
         elif gtk.gdk.keyval_name(event.keyval) in ('Left','Right'):
             key = gtk.gdk.keyval_name(event.keyval)
             if key == 'Left':
@@ -333,10 +343,12 @@ class InstrumentSelection:
         elif event.string == ']':
             self.oct+=1
             return
-        if event.string in self.notes.keys() and self.__selected:
+        elif event.string in ('1','2','3','4','5','6','7'):
+            self.oct = int(event.string)
+        elif event.string in self.notes.keys() and self.__selected:
             properties = (self.notes[event.string],self.oct, self.__selected)
             soundEvent = sound.SoundEvent(1, properties)
-            self.soundCC.send(soundEvent)        
+            self.soundCC.send(soundEvent)
 
     def response_event(self, widget, response_id):
         if response_id == gtk.RESPONSE_ACCEPT:

@@ -53,8 +53,8 @@ class CsndPlayer(object):
 			self.playing = True
 		return 0
 
-	def play(self,instr,note=LA): #not working yet...
-		self.playInstr(instr,note,20)
+	def play(self,instr,note=LA, octave=4): #not working yet...
+		self.playInstr(instr,note,20,octave)
 		self.playing = True
 
 	def stop(self):
