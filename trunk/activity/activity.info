@@ -1,0 +1,7 @@
+[Activity]
+name = EditorMusical
+service_name = www.edumusical.com.br
+class = MusicalEditorActivity.MusicalEditorActivity
+icon = activity-musical
+activity_version = 1
+show_launcher = yes
