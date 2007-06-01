@@ -34,10 +34,11 @@ class SoundConnectionCenter:
         type, properties = soundEvent.type, soundEvent.properties
         if type == 1:
             note, octave, instrument = properties
+            dur = 0.5
             if instrument in self.instruments.keys():
-                self.csound.playInstr(self.instruments[instrument],self.notes[note],1.0,octave)
-#       elif type == 2:
-#           self.csound.pause()
+                self.csound.playInstr(self.instruments[instrument],self.notes[note],dur,octave)
+#        elif type == 2:
+#           self.csound.stop()
         elif type == 3:
             note, octave, x, instrument = properties
             print "PLAY FOR SIGNAL --> playing %s octave %s for %s seconds" % (note,octave,x)

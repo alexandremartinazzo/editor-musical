@@ -47,6 +47,8 @@ except:
             self.mainwindow.connect("destroy", self.interface.destroy)
             self.mainwindow.modify_bg(gtk.STATE_NORMAL, self.interface.bgcolor)
             self.mainwindow.set_decorated(False)
+            self.mainwindow.connect('key_press_event',self.interface.key_press)
+            self.mainwindow.connect('key_release_event',self.interface.key_release)
             self.mainwindow.add(self.interface.fixed)
             self.mainwindow.show_all()
             # Changes the mouse cursor
