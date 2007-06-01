@@ -37,6 +37,10 @@ To use the keyboard, you may play a note using the keys listed above and use the
 left - go one column to left
 right - go one column to right
 + - adds 50 more columns (time) to composition
+ctrl-left - scrolls the grid to left
+ctrl-right - scrolls the grid to right
+crtl-end - scrolls the grid to the last column
+crtl-home - scrolls the grid to the first column
 
 Contacting for help:
 Bruno Fialho Marques Gola - brunogola@gmail.com
