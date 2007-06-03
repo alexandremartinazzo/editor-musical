@@ -12,11 +12,20 @@ class Notes:
         duration = 1 # duration: the number of cells the note is painted, helpful to differentiate 'dragging' from 'button press'
         try: self.octaveList[octave][instrument] += [(line, column, duration)]
         except: self.octaveList[octave][instrument] = [(line, column, duration)]
+        print self.octaveList
 
     def createDragging(self, column, line, octave, instrument):
         aux = len(self.octaveList[octave][instrument]) - 1
         oline, ocolumn, oduration = self.octaveList[octave][instrument][aux]
         self.octaveList[octave][instrument][aux] = (oline, ocolumn, oduration+1)
+
+    def deleteNote(self, column, line, octave, instrument):
+        try:
+            for note in self.octaveList[octave][instrument]:
+                if (line, column) == (note[0],note[1]):
+                    index = self.octaveList[octave][instrument].index(note)
+                    del self.octaveList[octave][instrument][index]
+        except: pass
 
 class Grid(gtk.DrawingArea):
     # Colors given by (Red, Green, Blue)
@@ -52,8 +61,8 @@ class Grid(gtk.DrawingArea):
         self.instrumentPosition = None # index of active instrument
         self.show()
         self.soundCC = sound.SoundConnectionCenter()
-        self.notes = ("DO", "DOs", "RE", "REs", "MI", "FA", "FAs", 
-                 "SOL", "SOLs", "LA", "LAs", "SI")
+        self.notes = ("SI", "LAs", "LA", "SOLs", "SOL", "FAs", "FA", 
+                 "MI", "REs", "RE", "DOs", "DO")
 
         self.add_events(gtk.gdk.BUTTON_PRESS_MASK |
                         gtk.gdk.BUTTON_RELEASE_MASK |
@@ -89,23 +98,38 @@ class Grid(gtk.DrawingArea):
             self.dragging = True
             if paint:
                 self.lastCell = paint
-            else:
+                delete = False
+            elif event.button == 1:
                 self.lastCell = ( int(event.x)/60 , int(event.y)/60 )
-            self.column = self.lastCell[0]
-            self.octaveList.create(1 + self.lastCell[0], 12 - self.lastCell[1], self.currentOctave, self.instrument)
-        
-            # Create a sound event
-            properties = (self.notes[self.lastCell[1]],self.currentOctave, self.instrument)
-            soundEvent = sound.SoundEvent(1, properties)
-            self.soundCC.send(soundEvent)
+                delete = False
+            elif event.button == 3:
+                delete = True
+            if not delete:
+                self.column = self.lastCell[0]
+                self.octaveList.create(1 + self.lastCell[0], 12 - self.lastCell[1], self.currentOctave, self.instrument)
 
-            position = self.positions.index(self.instrument)
+                # Create a sound event
+                properties = (self.notes[self.lastCell[1]],self.currentOctave, self.instrument)
+                soundEvent = sound.SoundEvent(1, properties)
+                self.soundCC.send(soundEvent)
 
-            x = self.lastCell[0]*60 + 15 # Horizonatal center
-            y = self.lastCell[1]*60 + (position-1)*6 + 3 # height defined by instrument index
-            begin = (x,y)
-            end = (x+30,y)
-            self.setAction("note", (begin,end))
+                position = self.positions.index(self.instrument)
+
+                x = self.lastCell[0]*60 + 15 # Horizonatal center
+                y = self.lastCell[1]*60 + (position-1)*6 + 3 # height defined by instrument index
+                begin = (x,y)
+                end = (x+30,y)
+                self.setAction("note", (begin,end))
+            else:
+                cell = ( int(event.x)/60 , int(event.y)/60 )
+                self.column = cell[0]
+                self.octaveList.deleteNote(1+cell[0],12-cell[1],self.currentOctave,self.instrument)
+                position = self.positions.index(self.instrument)
+                x = cell[0]*60 + 15 # Horizonatal center
+                y = cell[1]*60 + (position-1)*6 + 3 # height defined by instrument index
+                begin = (x,y)
+                self.setAction("delete",begin)
+                print 'ok dok'
         
         
     def motionNotify(self, widget=None, event=None, paint = None):
@@ -202,6 +226,11 @@ class Grid(gtk.DrawingArea):
                 if not knownNote: self.noteToPaint[self.instrument] += [properties]
             except:
                 self.noteToPaint[self.instrument] = [properties]
+        elif event == "delete":
+            for note in self.noteToPaint[self.instrument]:
+                if properties == note[0]:
+                    index = self.noteToPaint[self.instrument].index(note)
+                    del self.noteToPaint[self.instrument][index]
         alloc = self.get_allocation()
         rect = gtk.gdk.Rectangle(alloc.x, alloc.y, alloc.width, alloc.height)
         self.window.invalidate_rect(rect, True)
