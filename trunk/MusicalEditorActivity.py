@@ -14,7 +14,7 @@ try:
             activity.Activity.__init__(self, handle)
             self.hide()
             self.information = information.Information()
-            self.interface = gui.Interface(self.information.octaveList)
+            self.interface = gui.Interface(self.information.octaveList, self.information.positions, self.information.width)
             self.base = base.Base(self.interface, self.information)
             self.add(self.interface.fixed)
             self.set_title('Musical Editor')
