@@ -35,7 +35,6 @@ class SoundConnectionCenter:
         if type == 1:
             note, octave, instrument = properties
             dur = 0.5
-            print note
             if instrument in self.instruments.keys():
                 self.csound.playInstr(self.instruments[instrument],self.notes[note],dur,octave)
 #        elif type == 2:

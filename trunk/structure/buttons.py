@@ -1,13 +1,13 @@
 # buttons.py
 # Manage the interface's buttons
-
+import gtk
 class Buttons:
     def __init__(self, base):
         self.base = base
         # Connecting Open, Save, Save As Buttons
-        #base.gui.openBox.connect("button_press_event", self.open)
-        #base.gui.saveBox.connect("button_press_event", self.save)
-        #base.gui.saveAsBox.connect("button_press_event", self.saveAs)
+        base.gui.openBox.connect("button_press_event", self.open)
+        base.gui.saveBox.connect("button_press_event", self.save)
+        base.gui.saveAsBox.connect("button_press_event", self.saveAs)
 
         # Initialize Octaves' Togglebuttons
         base.gui.octave1.connect("toggled", self.togglegrid, 1)
@@ -29,16 +29,31 @@ class Buttons:
         # Connecting AddMoreColumns Button
         base.gui.columnsBox.connect("button_press_event", self.addColumns)
 
-    def open(self, widget, context):
-        open = self.base.information.open(self.base.gui.mainwindow)
-        if open != None:
-            self.base.instrument.instruments = open[1]
-            self.base.information.activeInstrument = None
-            self.base.instrumentMenu.changeMenu()
-            octave = self.base.information.octavelist[self.base.current_octave - 1]
-            
-            # TODO: CONSTRUIR NA GRADE A COMPOSICAO QUE FOI ABERTA
-            #self.base.rebuild_grid(octave, octave, 0, True)
+    def open(self, widget, event):
+        if event.button == 1:
+            parentWindow = self.base.gui.fixed.get_parent()
+            open = self.base.information.open(parentWindow)
+            if open:
+                self.base.gui.grid.octaveList.octaveList, self.base.gui.grid.positions, self.base.gui.grid.width = open
+                self.base.instrumentMenu.instruments = self.base.gui.grid.positions
+                self.base.gui.grid.instrument = None
+                self.base.gui.grid.instrumentPosition = None
+                self.base.gui.grid.column = 0
+                self.base.gui.currentOctave = 4
+                self.base.gui.grid.lastCell = None
+                self.base.gui.grid.paintNotes = True
+                self.base.gui.scrolledWindow.emit('scroll-child', gtk.SCROLL_START, True)
+                self.base.gui.grid.changeOctave()
+                self.base.instrumentMenu.rebuildMenu()
+
+    def save(self, widget, event):
+        if event.button == 1:
+            self.base.information.save()
+
+    def saveAs(self, widget, event):
+        if event.button == 1:
+            parentWindow = self.base.gui.fixed.get_parent()
+            self.base.information.saveAs(parentWindow)
     
     def togglegrid(self, octave, number):
         """This function is resposible for not allowing the grid to have more than
