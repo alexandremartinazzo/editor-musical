@@ -12,7 +12,6 @@ class Notes:
         duration = 1 # duration: the number of cells the note is painted, helpful to differentiate 'dragging' from 'button press'
         try: self.octaveList[octave][instrument] += [(line, column, duration)]
         except: self.octaveList[octave][instrument] = [(line, column, duration)]
-        print self.octaveList
 
     def createDragging(self, column, line, octave, instrument):
         aux = len(self.octaveList[octave][instrument]) - 1
@@ -37,7 +36,7 @@ class Grid(gtk.DrawingArea):
                         'Lyre':STRING, 'violoncelo':STRING, 'MANDOLIN':STRING, 'guiter2':STRING, 'tuba':BLOW, 'Pupsing':OTHERS,
                         'grandPiano':PERCUSSION, 'flute1':BLOW, 'mellophone':BLOW, 'xylophone':PERCUSSION,'timbale':PERCUSSION,
                         'CLARINET':BLOW, 'Recorder1':BLOW, 'trombone':BLOW, 'trumpet':BLOW, 'sax':BLOW} # instrument colors
-    def __init__(self, octaveList):
+    def __init__(self, octaveList, positions, width):
         #gtk.DrawingArea.__init__(self)
         super(Grid,self).__init__()
         self.octaveList = Notes(octaveList)
@@ -46,7 +45,7 @@ class Grid(gtk.DrawingArea):
         self.connect("button_press_event", self.buttonPress)
         self.connect("button_release_event", self.buttonRelease)
         self.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color(61423,62708,52865))
-        self.width = 6000
+        self.width = width
         self.height = 720
         self.set_size_request(self.width, self.height)
         self.columns = False
@@ -57,7 +56,7 @@ class Grid(gtk.DrawingArea):
         self.lastCell = None
         self.currentOctave = 4
         self.instrument = None # Name of the active instrument
-        self.positions = [None,None,None,None,None,None,None,None,None,None,None] # index of instruments
+        self.positions = positions
         self.instrumentPosition = None # index of active instrument
         self.show()
         self.soundCC = sound.SoundConnectionCenter()

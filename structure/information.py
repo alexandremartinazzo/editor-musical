@@ -1,5 +1,7 @@
 # information.py
 # this module may save information from the activity
+#TODO: manipular strings para arquivos com final .edi
+
 import gtk
 try:
     import cPickle as pickle
@@ -8,78 +10,72 @@ except ImportError:
 
 class Information:
     def __init__(self):
-        self.octaveList = [None, {},{},{},{},{},{},{}] # It contains iformation of each octave
-        self.instruments = {} # Dict of instruments added to composition with their position (1-10)
-        self.activeInstrument = None # index of the active instrument
-        self.metronome = 1000
+        # This variables contain all the necessary information to reproduce the composition
+        self.octaveList = [None, {},{},{},{},{},{},{}] # painted cells in each octave
+        self.positions = [None,None,None,None,None,None,None,None,None,None,None] # index of instruments
+        self.width = 6000 # grid's width
 
     def open(self, parentWindow):
-        openDialog = Arquivo(parentWindow, 'Musical Editor Files', '*.mef')
+        openDialog = Chooser(parentWindow, "open", 'Editor Musical', '*.edi')
         path = openDialog.run()
         openDialog.destroy()
         # Get the file
         if path == None:
-            return None
-        openFile = file(path, "r") # open the file for reading
-        openObject = pickle.load(openFile)
-        self.octavelist, self.instruments = openObject
-        return [self.octavelist, self.instruments]
-    
+            return False
+        try:
+            openFile = file(path, "r") # open the file for reading
+            openObject = pickle.load(openFile)
+            self.octaveList, self.positions, self.width = openObject
+            self.path = path
+            return openObject
+        except:
+            return False
+
     def save(self):
-        saveObject = (self.octavelist, self.instruments) # the serializable object
-        self.savePath = '/home/barbolo/Desktop/eclipsedevelopment/Musical editor/src/arquivos salvos/arquivo.mef'
-        saveFile = file(self.savePath, "w") # open the archive for writing
-        pickle.dump(saveObject, saveFile)
-        
-    def saveAs(self):
-        saveObject = (self.octavelist, self.instruments) # the serializable object
-        saveFile = file(self.savePath, "w") # open the archive for writing
-        pickle.dump(saveObject, saveFile)        
+        if self.path:
+            saveObject = (self.octaveList, self.positions, self.width) # the serializable object
+            saveFile = file(self.path, "w") # open the archive for writing
+            pickle.dump(saveObject, saveFile)
 
+    def saveAs(self, parentWindow):
+        saveObject = (self.octaveList, self.positions, self.width) # the serializable object
+        saveDialog = Chooser(parentWindow, "save", 'Editor Musical', '*.edi')
+        self.path = saveDialog.run()
+        saveDialog.destroy()
+        if self.path:
+            self.path += ".edi"
+            saveFile = file(self.path, "w") # open the archive for writing the saveObject
+            pickle.dump(saveObject, saveFile)
 
-class Arquivo:
-    # Written by Alexandre Martinazzo
+class Chooser:
     __retorno = None
-    
     def response_event(self, widget, data):
-        #print widget, data
         if data == gtk.RESPONSE_OK:
-            print 'arquivo selecionado:', "%s" % self.janela.get_filename()
-            self.__retorno = self.janela.get_filename()
+            self.__retorno = self.dialog.get_filename()
         elif data == gtk.RESPONSE_CANCEL:
-            print 'cancelando operacao'
             self.__retorno = None
-        
     def run(self):
-        self.janela.run()
+        self.dialog.run()
         return self.__retorno
     
     def destroy(self):
-        self.janela.destroy()
+        self.dialog.destroy()
     
-    def __init__(self, parent, titulo_filtro=None, *mime):
+    def __init__(self, parent, type = None, title=None, *mime):
         
-        self.janela = gtk.FileChooserDialog("Selecionar Arquivo",
-                                            parent,
-                                            gtk.FILE_CHOOSER_ACTION_OPEN)
-            
-        # Usa os botoes padrao do GTK, e define um identificador para
-        # reconhecer no tratamento do evento "response"
-        self.janela.add_buttons(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
+        if type == "open": self.dialog = gtk.FileChooserDialog("Selecionar Arquivo",
+                                                               parent,
+                                                               gtk.FILE_CHOOSER_ACTION_OPEN)
+        elif type == "save": self.dialog = gtk.FileChooserDialog("Selecionar Arquivo",
+                                                               parent,
+                                                               gtk.FILE_CHOOSER_ACTION_SAVE)
+        self.dialog.add_buttons(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
                                 gtk.STOCK_OK,     gtk.RESPONSE_OK)
-        
-        # preciso descobrir como abrir arquivos em localizacoes remotas
-        #if self.janela.get_property('local-only') == True:
-        #    self.janela.set_property('local-only', False)
-        
-        # adiciona um filtro para abertura de arquivos
-        if mime != None:
-            filtro = gtk.FileFilter()
-            filtro.set_name(titulo_filtro)
-        
-            for tipo in mime:
-                filtro.add_pattern(tipo)
-            self.janela.add_filter(filtro)
-        
-        self.janela.connect('response', self.response_event)
+        if mime:
+            filter = gtk.FileFilter()
+            filter.set_name(title)
+            for type in mime:
+                filter.add_pattern(type)
+            self.dialog.add_filter(filter)
+        self.dialog.connect('response', self.response_event)
         

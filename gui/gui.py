@@ -11,7 +11,7 @@ import sound
 
 class Interface:
     """This class builds the main window and its components"""
-    def __init__(self, octaveList):
+    def __init__(self, octaveList = None, positions = None, width = None):
         # Some useful colors
         self.bgcolor = gtk.gdk.Color(64507,58596,32125)
         self.color1 = gtk.gdk.Color(40863, 47545, 56026)
@@ -21,7 +21,7 @@ class Interface:
 
         self.createFixed()
         self.createBackground() # the color is set to yellow
-        self.createGrid(octaveList)
+        self.createGrid(octaveList, positions, width)
         self.createButtons()
 
         # parameters
@@ -85,9 +85,9 @@ class Interface:
         self.fixed.put(self.background, 0, 0)
         self.background.show()
 
-    def createGrid(self, octaveList):
+    def createGrid(self, octaveList, positions, width):
         # Create the Grid Interface
-        self.grid = Grid(octaveList)
+        self.grid = Grid(octaveList, positions, width)
 
         # Create a ScrolledWindow
         self.scrolledWindow = gtk.ScrolledWindow(None,None)
@@ -258,7 +258,7 @@ class Interface:
         self.openBox = gtk.EventBox()
         self.openBox.add(self.openImage)
         self.openBox.set_visible_window(False)
-        #self.fixed.put(self.openBox, 19, 28)
+        self.fixed.put(self.openBox, 100, 50)
         self.openBox.show()   
             
         # Save Button
@@ -267,7 +267,7 @@ class Interface:
         self.saveBox = gtk.EventBox()
         self.saveBox.add(self.saveImage)
         self.saveBox.set_visible_window(False)
-        #self.fixed.put(self.saveBox, 75, 34)
+        self.fixed.put(self.saveBox, 130, 50)
         self.saveBox.show()
 
         # Save As Button
@@ -276,7 +276,7 @@ class Interface:
         self.saveAsBox = gtk.EventBox()
         self.saveAsBox.add(self.saveAsImage)
         self.saveAsBox.set_visible_window(False)
-        #self.fixed.put(self.saveAsBox, 113, 34)
+        self.fixed.put(self.saveAsBox, 160, 50)
         self.saveAsBox.show()
 
     def selectInstrument(self):
