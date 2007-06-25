@@ -1,6 +1,13 @@
 #!/usr/bin/python
-try: import csnd,time,os
-except: print "You need to install CSound and put csnd.py in your 'python2.x/site-package/' folder"
+
+import time, os, pdb
+
+try: 
+	import csnd
+except ImportError: 
+	print "You need to install CSound and put csnd.py in your 'python2.x/site-package/' folder"
+	import sys
+	sys.exit(1)
 
 # Some constants defined here. 
 
@@ -40,7 +47,7 @@ class CsndPlayer(object):
 		self.cs = csnd.Csound() # nova instancia do Csound
 		self.cs.Compile(self.csd) # Compila arquivo .csd 
 		self.th = csnd.CsoundPerformanceThread(self.cs) # Inicializa uma thread executar para a partitura
-
+	
 	def playInstr(self, instr, note, dur=1.0,octave=4,*args):
 		"""Toca 'note'. Pode receber a oitava, por padrao eh a 4"""
 		msg = "i %d 0 %f %f %s" % (instr[0], dur, note*octave,str(instr[1]))
@@ -53,18 +60,21 @@ class CsndPlayer(object):
 			self.playing = True
 		return 0
 
-	def play(self,instr,note=LA, octave=4): #not working yet...
-		self.playInstr(instr,note,20,octave)
+	def play(self,instr,note=LA, octave=4): 
+		self.playInstr(instr,note,30,octave)
 		self.playing = True
 
 	def stop(self):
 		self.playing = False
-		self.th.Stop()
+		self.th.SetScoreOffsetSeconds(0)
 		
 if __name__ == "__main__":
 	"""Exemplo de como usar o CsndPlayer"""
-	player = CsndPlayer()
-	player.playInstr(ORGAN,LA,2,4)
+	player = CsndPlayer('instruments.csd')
+	player.play(ORGAN,LA,4)
+	raw_input()
+	player.stop()
+	player.play(ORGAN,RE,4)
 	raw_input()
 	player.stop()
 	import sys
